@@ -1,0 +1,70 @@
+
+
+/*
+ ::::::::::::::::::::::::::
+  works area css
+ ::::::::::::::::::::::::::
+ */
+
+// home 7  end=====
+
+.works7 {
+    .works-box {
+        margin-top: 30px;
+        text-align: center;
+
+        .image {
+            overflow: hidden;
+            border-radius: 10px;
+            img {
+                width: 100%;
+                border-radius: 10px;
+                transition: all .4s;
+            }
+        }
+        .headding7 {
+            position: relative;
+            span.number {
+                color: $color-w;
+                text-align: center;
+                font-family: $font-8;
+                font-style: normal;
+                font-weight: $regular;
+                line-height: 20px; /* 100% */
+                display: inline-block;
+                height: 40px;
+                width: 40px;
+                background-color: $bg-color14;
+                border-radius: 50%;
+                line-height: 40px;
+                position: absolute;
+                top: -20px;
+                left: 50%;
+                margin-left: -20px;
+            }
+
+            h4 {
+                padding-bottom: 15px;
+                padding-top: 32px;
+            }
+        }
+
+        &:hover {
+            .image {
+                img {
+                    transition: all .4s;
+                    transform: scale(1.1) rotate(4deg);
+                }
+            }
+        }
+    }
+}
+
+// home 7  end=====
+
+
+/*
+ ::::::::::::::::::::::::::
+  works area css
+ ::::::::::::::::::::::::::
+ */

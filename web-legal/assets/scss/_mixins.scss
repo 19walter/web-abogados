@@ -1,0 +1,13 @@
+
+
+@mixin flex-just-bet {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+@mixin bg2 {
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}

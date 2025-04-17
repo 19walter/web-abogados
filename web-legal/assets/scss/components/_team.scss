@@ -1,0 +1,233 @@
+
+/*
+ ::::::::::::::::::::::::::
+  team area css
+ ::::::::::::::::::::::::::
+ */
+
+//******* home1 style 1 ********
+
+.team1 {
+
+    background-color: $bg1;
+    .team-box {
+        cursor: all-scroll;
+        margin: 30px 10px 0px 10px;
+        &:hover {
+            .team-img-icon-box {
+                &::after {
+                    opacity: 1;
+                    bottom: 0;
+                }
+                .team-icon {
+                    bottom: 40px;
+                    transition: 0.4s;
+                }
+            }
+        }
+        .team-img-icon-box {
+            position: relative;
+            overflow: hidden;
+            &::after {
+                position: absolute;
+                content: "";
+                height: 100%;
+                width: 100%;
+                bottom: -100px;
+                left: 0;
+                border-radius: 5px;
+                background: linear-gradient(180deg, rgba(255, 125, 0, 0.00) 0%, rgba(255, 125, 0, 0.75) 62.81%, #FF7D00 100%);
+                opacity: 0;
+                transition: 0.4s;
+            }
+            .team-box-img {
+                overflow: hidden;
+            }
+
+            .team-icon {
+                position: absolute;
+                bottom: -40px;
+                z-index: 99;
+                left: 50%;
+                margin-left: -92px;
+                transition: 0.4s;
+                li {
+                    display: inline-block;
+                    a {
+                        display: inline-block;
+                        height: 38px;
+                        width: 38px;
+                        border-radius: 50%;
+                        border: 1px solid #fff;
+                        text-align: center;
+                        line-height: 38px;
+                        color: $color-w;
+                        margin: 0px 3px;
+                        transition: 0.4s;
+                        font-size: $smoll-font;
+                        &:hover {
+                            background-color: $color-w;
+                            transition: 0.4s;
+                            color: #093532;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    .owl-dots {
+        text-align: center;
+        margin-top: 40px;
+        button {
+         width: 10px;
+        height: 10px;
+        background: #3B5F99;
+        display: inline-block;
+        margin: 6px;
+        border-radius: 50%;
+        }
+        button.active {
+            background: $color-w;
+            height: 13px;
+            width: 13px;
+        }
+      }
+}
+
+
+
+//******* home1 style 1 ********
+
+//******* home3 team ********
+
+.team3 {
+    background-color: $bg-color3;
+
+    .single-team-box {
+        background-color: $color-w;
+        border-radius: 4px;
+        padding: 0px 32px 32px 32px;
+        margin-top: 90px;
+        transition: all .4s;
+
+        &:hover {
+            transform: translateY(-10px);
+            transition: all .4s;
+        }
+        .team-img {
+            img {
+                margin-top: -60px;
+                border-radius: 50%;
+            }
+        }
+
+        .headding3 {
+            padding-top: 24px;
+            p {
+                padding-top: 5px;
+            }
+        }
+
+        .icons {
+            margin-top: 24px;
+            li {
+                display: inline-block;
+                padding: 0px 3px;
+
+                a {
+                    height: 40px;
+                    width: 40px;
+                    border-radius: 50%;
+                    background-color: $bg-color3;
+                    color: #030A0C;
+                    text-align: center;
+                    line-height: 40px;
+                    display: inline-block;
+                    transition: all .4s;
+
+                    &:hover {
+                        background: $bg-color2;
+                        color: $color-w;
+                    }
+                }
+            }
+        }
+    }
+}
+
+//******* home3 team ********
+
+
+
+
+
+//******* home3 team ********
+
+.about-team {
+
+    .single-team-box {
+        background-color: #EDF2F4 !important;
+        border-radius: 4px;
+        padding: 0px 32px 32px 32px;
+        margin-top: 90px;
+        transition: all .4s;
+
+        &:hover {
+            transform: translateY(-10px);
+            transition: all .4s;
+        }
+        .team-img {
+            img {
+                margin-top: -60px;
+                border-radius: 50%;
+            }
+        }
+
+        .headding3 {
+            padding-top: 16px;
+            h4 {
+                a {
+                    font-family: $font-5;
+                }
+            }
+            p {
+                padding-top: 5px;
+                font-family: $font-6;
+            }
+        }
+
+        .icons {
+            margin-top: 24px;
+            li {
+                display: inline-block;
+                padding: 0px 3px;
+
+                a {
+                    height: 40px;
+                    width: 40px;
+                    border-radius: 50%;
+                    background-color: $color-w;
+                    color: #030A0C;
+                    text-align: center;
+                    line-height: 40px;
+                    display: inline-block;
+                    transition: all .4s;
+
+                    &:hover {
+                        background: $bg-color4;
+                        color: $color-w;
+                    }
+                }
+            }
+        }
+    }
+}
+
+//******* home3 team ********
+
+
+/*
+ ::::::::::::::::::::::::::
+  team area css
+ ::::::::::::::::::::::::::
+ */

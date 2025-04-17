@@ -1,0 +1,747 @@
+.header-area {
+  padding: 20px 0;
+}
+
+
+
+/* 
+++++++++++++++++++++++++++++++++++
+==== =====nav menu all ====== ======
++++++++++++++++++++++++++++++++++
+*/
+
+input:focus {
+  outline: none;
+}
+
+.main-menu-ex li {
+  display: inline-block;
+}
+
+.main-menu-ex li a {
+  color: #000;
+  font-size: 16px;
+  display: block;
+  font-weight: 500;
+  padding: 10px 15px;
+  transition: all.3s;
+}
+.main-menu-ex li a:hover {
+  color: #0263e0;
+  transition: all.3s;
+}
+.main-menu-ex .has-dropdown {
+  position: relative;
+  z-index: 9;
+}
+.main-menu-ex .has-dropdown ul.sub-menu {
+  position: absolute;
+  left: 0;
+  top: 50px;
+  background: #fff;
+  width: 200px;
+  border-radius: 4px;
+  box-shadow: rgb(0 0 0 / 20%) 0px 20px 30px;
+  padding: 10px;
+  z-index: 999;
+}
+
+.main-menu-ex li li {
+  display: block;
+}
+.main-menu-ex li li a {
+  padding: 10px 20px;
+  color: #0e1124;
+  font-weight: 500;
+  transition: all.4s;
+  border-radius: 4px;
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  margin: 3px 0;
+  text-transform: capitalize;
+}
+
+.main-menu-ex.main-menu-ex1 li a:hover {
+  color: #fff;
+}
+
+
+.main-menu-ex.main-menu-ex1 li li a::after {
+  content: "";
+  position: absolute;
+  top: 0px;
+  left: 0;
+  width: 0%;
+  height: 100%;
+  color: #fff;
+  border-radius: 5px;
+  transition: all.4s;
+  z-index: -1;
+  opacity: 1;
+  background: #ED6835;
+}
+
+
+.main-menu-ex.main-menu-ex1 li li a:hover::after {
+  border-radius: 4px;
+  width: 100%;
+  opacity: 1;
+  left: 0;
+  right: auto;
+}
+
+
+li.has-dropdown1 {
+  position: relative;
+}
+
+
+.main-menu-ex.main-menu-ex1 li a {
+  color: #FFFFFF;
+  font-size: 16px;
+  display: block;
+  font-weight: 500;
+  padding: 10px 15px;
+  transition: all.3s;
+}
+
+.main-menu-ex.main-menu-ex1 li li a {
+  color: #181A1C;
+}
+
+.main-menu-ex.main-menu-ex1 li li a:hover {
+  color: #fff;
+}
+
+
+.main-menu-ex li li a .main-menu-ex li li a:hover {
+  background-color: #00bf71;
+  transform: rotatey(0deg);
+  border-radius: 4px;
+}
+.has-dropdown1 {
+  position: relative;
+}
+
+.main-menu-ex .has-dropdown > ul {
+  opacity: 0;
+  visibility: hidden;
+  top: 60px;
+  left: 0;
+  transition: all 0.3s;
+  transform: translateY(20px);
+}
+
+.main-menu-ex li li > ul {
+  left: 100%;
+  right: auto;
+}
+
+.main-menu-ex li li:hover > ul {
+ top: 0;
+}
+
+.main-menu-ex .has-dropdown:hover > ul {
+  visibility: visible;
+  opacity: 1;
+  top: 50px;
+  transition: all 0.3s;
+  z-index: 99;
+  transform: translateY(0);
+  box-shadow: 0px 4px 50px 0px rgba(0, 0, 0, 0.08);
+}
+
+li.has-dropdown1 {
+  position: relative;
+}
+li.has-dropdown1 span {
+  position: absolute;
+  right: 10px;
+}
+
+.header-area-all.sticky2 {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  transform: translate3d(0, 0, 0);
+  z-index: 111;
+  -webkit-animation-name: fade-in-down;
+  animation-name: fade-in-down;
+  -webkit-animation-duration: 1s;
+  animation-duration: 1s;
+  -webkit-animation-fill-mode: forwards;
+  animation-fill-mode: forwards;
+  background-color: #0A377F;
+  transition: all 0.3s ease-in-out;
+  z-index: 99;
+}
+
+.header-area-all.header-area-all1.sticky {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  transform: translate3d(0, 0, 0);
+  z-index: 111;
+  -webkit-animation-name: fade-in-down;
+  animation-name: fade-in-down;
+  -webkit-animation-duration: 1s;
+  animation-duration: 1s;
+  -webkit-animation-fill-mode: forwards;
+  animation-fill-mode: forwards;
+  background-color: #0A377F;
+  transition: all 0.3s ease-in-out;
+  z-index: 99;
+}
+
+.header-area-all.header-area-all2.sticky {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  transform: translate3d(0, 0, 0);
+  z-index: 111;
+  -webkit-animation-name: fade-in-down;
+  animation-name: fade-in-down;
+  -webkit-animation-duration: 1s;
+  animation-duration: 1s;
+  -webkit-animation-fill-mode: forwards;
+  animation-fill-mode: forwards;
+  background-color: #0A377F;
+  transition: all 0.3s ease-in-out;
+  z-index: 99999;
+}
+
+.header-area-all.header-area-all3.sticky {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  transform: translate3d(0, 0, 0);
+  z-index: 111;
+  -webkit-animation-name: fade-in-down;
+  animation-name: fade-in-down;
+  -webkit-animation-duration: 1s;
+  animation-duration: 1s;
+  -webkit-animation-fill-mode: forwards;
+  animation-fill-mode: forwards;
+  background-color: #073B4C;
+  transition: all 0.3s ease-in-out;
+  z-index: 99999;
+}
+
+@-webkit-keyframes fade-in-down {
+  0% {
+    opacity: 0;
+    -webkit-transform: translate3d(0, -50px, 0);
+    transform: translate3d(0, -50px, 0);
+  }
+  100% {
+    opacity: 1;
+    -webkit-transform: none;
+    transform: none;
+  }
+}
+@keyframes fade-in-down {
+  0% {
+    -webkit-transform: translate3d(0, -50px, 0);
+    transform: translate3d(0, -50px, 0);
+  }
+  100% {
+    opacity: 1;
+    -webkit-transform: none;
+    transform: none;
+  }
+}
+
+.fade-in-down {
+  -webkit-animation-name: fade-in-down;
+  animation-name: fade-in-down;
+  -webkit-animation-duration: 1s;
+  animation-duration: 1s;
+  -webkit-animation-fill-mode: forwards;
+  animation-fill-mode: forwards;
+}
+
+.header-area-all.header-area-all-pages {
+  position: absolute;
+  top: 50px;
+  left: 0;
+  width: 100%;
+  transform: translate3d(0, 0, 0);
+  z-index: 111;
+  -webkit-animation-name: fade-in-down;
+  animation-name: fade-in-down;
+  -webkit-animation-duration: 1s;
+  animation-duration: 1s;
+  -webkit-animation-fill-mode: forwards;
+  animation-fill-mode: forwards;
+  background-color: #ffffff;
+  transition: all 0.3s ease-in-out;
+  z-index: 99;
+}
+
+.header-area.header-area3.header-area-all {
+  background-color: #fff;
+  transition: all.4s;
+}
+
+/* 
+++++++++++++++++++++++++++++++++++
+==== =====nav menu all ====== ======
++++++++++++++++++++++++++++++++++
+*/
+
+
+/* 
++++++++++++++++++++++++++++++++++++++
+==== =====nav menu 4 all ====== ======
+++++++++++++++++++++++++++++++++++++
+*/
+
+/* 
++++++++++++++++++++++++++++++++++++++
+==== =====nav menu 4 all ====== ======
++++++++++++++++++++++++++++++++++++++
+*/
+
+.mega-menu-all {
+  background: #fff;
+  width: 100%;
+  height: 600px;
+  position: absolute;
+  left: 0;
+  top: 70px;
+  border-radius: 5px;
+  transform: translateY(70px);
+  transition: all.3s;
+  visibility: hidden;
+  box-shadow: rgb(0 0 0 / 20%) 0px 20px 30px;
+  padding: 30px;
+  opacity: 0;
+  overflow-y: scroll;
+}
+
+.mega-dropdawn:hover .mega-menu-all {
+  transform: translateY(0);
+  transition: all.6s;
+  visibility: visible;
+  opacity: 1;
+  overflow-y: scroll !important;
+}
+
+.mega-menu-item-box::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background-color: #0c0c0c;
+  opacity: 0.4;
+  z-index: 1;
+  opacity: 0;
+  transition: all.4s;
+  border-radius: 5px;
+  transform: scale(0.8);
+}
+.mega-menu-item-box:hover::after {
+  opacity: 0.5;
+  transition: all.4s;
+  transform: scale(1);
+}
+
+
+.mega-menu-items-button a {
+  width: 150px;
+  position: relative;
+  z-index: 23;
+}
+
+.mega-menu-items-button {
+  position: absolute;
+  bottom: 0;
+  visibility: hidden;
+  opacity: 0;
+  left: 50%;
+  margin-left: -99px;
+  transition: all.4s;
+  z-index: 99;
+}
+
+.mega-menu-item-box {
+  border-radius: 5px;
+  cursor: pointer;
+  position: relative;
+  box-shadow: 0px 4px 50px 0px rgba(0, 0, 0, 0.08);
+}
+
+.mega-menu-item-box:hover .mega-menu-items-button {
+  bottom: 90px;
+  visibility: visible;
+  opacity: 1;
+  transition: all.4s;
+}
+
+ul.sub-menu-all {
+  position: absolute;
+  left: 200px;
+  top: -30px;
+}
+
+ul.sub-menu-all {
+  background: #fff;
+  width: 110%;
+  margin-left: 197px;
+  padding: 10px;
+  border-radius: 5px;
+  margin-top: -40px;
+}
+.mega-menu-box-img img {
+  border-radius: 5px;
+}
+
+
+/* 
++++++++++++++++++++++++++++++++++++++
+==== =====nav menu 3 all ====== ======
++++++++++++++++++++++++++++++++++++++
+*/
+
+.header-area-all.header-area-all5 .main-menu-ex.main-menu-ex1 li a:hover {
+  color: #0D4F51;
+}
+
+.header-area-all.header-area-all5 .main-menu-ex.main-menu-ex1 li li a:hover {
+  color: #fff;
+}
+
+
+.header-area-all.header-area-all5 .main-menu-ex.main-menu-ex1 li li a::after {
+  content: "";
+  position: absolute;
+  top: 0px;
+  left: 0;
+  width: 0%;
+  height: 100%;
+  color: #fff;
+  border-radius: 5px;
+  transition: all.4s;
+  z-index: -1;
+  opacity: 1;
+  background: #335C67;
+}
+
+.header-area-all.header-area-all5 .main-menu-ex.main-menu-ex1 li li a:hover::after {
+  border-radius: 4px;
+  width: 100%;
+  opacity: 1;
+  left: 0;
+  right: auto;
+}
+
+
+
+/* 
++++++++++++++++++++++++++++++++++++++
+==== =====nav menu 3 all ====== ======
++++++++++++++++++++++++++++++++++++++
+*/
+
+/* 
++++++++++++++++++++++++++++++++++++++
+==== =====nav menu 4 all ====== ======
++++++++++++++++++++++++++++++++++++++
+*/
+
+
+.header-area-all.header-area-all3 .main-menu-ex.main-menu-ex1 li li a:hover {
+  color: #fff;
+}
+
+
+.header-area-all.header-area-all3 .main-menu-ex.main-menu-ex1 li li a::after {
+  content: "";
+  position: absolute;
+  top: 0px;
+  left: 0;
+  width: 0%;
+  height: 100%;
+  color: #fff;
+  border-radius: 5px;
+  transition: all.4s;
+  z-index: -1;
+  opacity: 1;
+  background: #335C67;
+}
+
+.header-area-all.header-area-all3 .main-menu-ex.main-menu-ex1 li li a:hover::after {
+  border-radius: 4px;
+  width: 100%;
+  opacity: 1;
+  left: 0;
+  right: auto;
+}
+
+
+/* 
++++++++++++++++++++++++++++++++++++++
+==== =====nav menu 4 all ====== ======
++++++++++++++++++++++++++++++++++++++
+*/
+
+/* 
++++++++++++++++++++++++++++++++++++++
+==== =====nav menu 4 all ====== ======
++++++++++++++++++++++++++++++++++++++
+*/
+
+
+.header-area-all.header-area-all7 .main-menu-ex.main-menu-ex1 li li a:hover {
+  color: #fff;
+}
+
+
+.header-area-all.header-area-all7 .main-menu-ex.main-menu-ex1 li li a::after {
+  content: "";
+  position: absolute;
+  top: 0px;
+  left: 0;
+  width: 0%;
+  height: 100%;
+  color: #fff;
+  border-radius: 5px;
+  transition: all.4s;
+  z-index: -1;
+  opacity: 1;
+  background: #FDC24C;
+}
+
+.header-area-all.header-area-all7 .main-menu-ex.main-menu-ex1 li li a:hover::after {
+  border-radius: 4px;
+  width: 100%;
+  opacity: 1;
+  left: 0;
+  right: auto;
+}
+
+
+/* 
++++++++++++++++++++++++++++++++++++++
+==== =====nav menu 4 all ====== ======
++++++++++++++++++++++++++++++++++++++
+*/
+
+/* 
++++++++++++++++++++++++++++++++++++++
+==== =====nav menu 4 all ====== ======
++++++++++++++++++++++++++++++++++++++
+*/
+
+
+.header-area-all.header-area-all6 .main-menu-ex.main-menu-ex1 li li a::after {
+  content: "";
+  position: absolute;
+  top: 0px;
+  left: 0;
+  width: 0%;
+  height: 100%;
+  color: #fff;
+  border-radius: 5px;
+  transition: all.4s;
+  z-index: -1;
+  opacity: 1;
+  background: #EC665E;
+}
+
+.header-area-all.header-area-all6 .main-menu-ex.main-menu-ex1 li li a:hover::after {
+  border-radius: 4px;
+  width: 100%;
+  opacity: 1;
+  left: 0;
+  right: auto;
+}
+
+
+.header-area-all.header-area-all2 .main-menu-ex.main-menu-ex1 li li a::after {
+  content: "";
+  position: absolute;
+  top: 0px;
+  left: 0;
+  width: 0%;
+  height: 100%;
+  color: #fff;
+  border-radius: 5px;
+  transition: all.4s;
+  z-index: -1;
+  opacity: 1;
+  background: #E55D42;
+}
+
+.header-area-all.header-area-all2 .main-menu-ex.main-menu-ex1 li li a:hover::after {
+  border-radius: 4px;
+  width: 100%;
+  opacity: 1;
+  left: 0;
+  right: auto;
+}
+
+
+.header-area-all.header-area-all1 .main-menu-ex.main-menu-ex1 li li a::after {
+  content: "";
+  position: absolute;
+  top: 0px;
+  left: 0;
+  width: 0%;
+  height: 100%;
+  color: #fff;
+  border-radius: 5px;
+  transition: all.4s;
+  z-index: -1;
+  opacity: 1;
+  background: #EC862F;
+}
+
+.header-area-all.header-area-all1 .main-menu-ex.main-menu-ex1 li li a:hover::after {
+  border-radius: 4px;
+  width: 100%;
+  opacity: 1;
+  left: 0;
+  right: auto;
+}
+
+
+/* 
++++++++++++++++++++++++++++++++++++++
+==== =====nav menu 4 all ====== ======
++++++++++++++++++++++++++++++++++++++
+*/
+
+
+/* 
++++++++++++++++++++++++++++++++++++++
+==== =====nav menu 4 all ====== ======
++++++++++++++++++++++++++++++++++++++
+*/
+
+.main-menu-ex.main-menu-ex7 li a:hover {
+  color: #4893FF;
+}
+
+.main-menu-ex.main-menu-ex7 li li a:hover {
+  color: #fff;
+}
+
+
+.main-menu-ex.main-menu-ex7 li li a::after {
+  content: "";
+  position: absolute;
+  top: 0px;
+  left: 0;
+  width: 0%;
+  height: 100%;
+  color: #fff;
+  border-radius: 5px;
+  transition: all.4s;
+  z-index: -1;
+  opacity: 1;
+  background: #4893FF;
+}
+
+.main-menu-ex.main-menu-ex7 li li a:hover::after {
+  border-radius: 4px;
+  width: 100%;
+  opacity: 1;
+  left: 0;
+  right: auto;
+}
+
+.mega-menu-items-button.mega-menu-items-button7 a {
+  padding: 12px 10px;
+  color: #fff;
+  line-height: 30px;
+}
+
+.main-menu-ex.main-menu-ex7 .mega-menu-items-button.mega-menu-items-button7 a:hover {
+  color: #fff;
+}
+
+/* 
++++++++++++++++++++++++++++++++++++++
+==== =====nav menu 4 all ====== ======
++++++++++++++++++++++++++++++++++++++
+*/
+
+
+/* 
++++++++++++++++++++++++++++++++++++++
+==== =====nav menu 4 all ====== ======
++++++++++++++++++++++++++++++++++++++
+*/
+
+.main-menu-ex.main-menu-ex8 li a {
+  color: #fff;
+}
+
+.main-menu-ex.main-menu-ex8 li li a {
+  color: #0c0c0c;
+}
+
+.main-menu-ex.main-menu-ex8 li a:hover {
+  color: #B51DEE;
+}
+
+.main-menu-ex.main-menu-ex8 li li a:hover {
+  color: #fff;
+}
+
+
+.main-menu-ex.main-menu-ex8 li li a::after {
+  content: "";
+  position: absolute;
+  top: 0px;
+  left: 0;
+  width: 0%;
+  height: 100%;
+  color: #fff;
+  border-radius: 5px;
+  transition: all.4s;
+  z-index: -1;
+  opacity: 1;
+  background: #B51DEE;
+}
+
+.main-menu-ex.main-menu-ex8 li li a:hover::after {
+  border-radius: 4px;
+  width: 100%;
+  opacity: 1;
+  left: 0;
+  right: auto;
+}
+
+.main-menu-ex.main-menu-ex8 .mega-menu-items-button.mega-menu-items-button8 a:hover {
+  color: #fff;
+}
+
+.main-menu-ex.main-menu-ex8 a {
+  line-height: 30px;
+}
+
+
+/* 
++++++++++++++++++++++++++++++++++++++
+==== =====nav menu 4 all ====== ======
++++++++++++++++++++++++++++++++++++++
+*/
+
+
+
+.overlay.flex.cac.vac.preloader-parent .preloader .logo {
+  background-image: url(../img/logo/titel1.svg);
+  height: 70px;
+  width: 70px;
+  background-position: center;
+  background-repeat: no-repeat;
+}
