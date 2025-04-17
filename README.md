@@ -117,5 +117,5 @@ Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) par
 ## 📞 Contacto
 
 Para cualquier consulta o soporte, por favor contacta a través de:
-- Email: [tu-email@ejemplo.com]
+- Email: stevegomezdev@gmail.com
 - GitHub: [@badkitten-bug](https://github.com/badkitten-bug) 
