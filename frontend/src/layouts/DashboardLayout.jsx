@@ -67,7 +67,7 @@ const DashboardLayout = () => {
       <Toolbar>
         <Box
           component="img"
-          src={`${import.meta.env.BASE_URL}assets/img/logo/footer-logo2.svg`}
+          src={`${import.meta.env.BASE_URL}assets/img/logo/header-logo2.svg`}
           alt="Logo Legal Firm"
           sx={{
             height: 30,

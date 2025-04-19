@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Container,
@@ -19,6 +19,8 @@ import {
   IconButton,
   Menu,
   MenuItem,
+  Chip,
+  Avatar,
 } from '@mui/material';
 import {
   Description,
@@ -29,11 +31,37 @@ import {
   Add,
 } from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
+import { getAllRecords } from '../services/records.service';
+import { getAllAppointments } from '../services/appointments.service';
 
 const Dashboard = () => {
   const { user } = useAuth();
   const [tabValue, setTabValue] = useState(0);
   const [anchorEl, setAnchorEl] = useState(null);
+  const [cases, setCases] = useState([]);
+  const [appointments, setAppointments] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const [casesData, appointmentsData] = await Promise.all([
+        getAllRecords(),
+        getAllAppointments()
+      ]);
+      
+      setCases(casesData);
+      setAppointments(appointmentsData);
+    } catch (error) {
+      console.error('Error al cargar datos:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
@@ -47,41 +75,20 @@ const Dashboard = () => {
     setAnchorEl(null);
   };
 
-  // Datos de ejemplo para los casos
-  const casos = [
-    {
-      id: 1,
-      titulo: 'Caso Corporativo XYZ',
-      estado: 'En proceso',
-      fecha: '2023-04-15',
-      descripcion: 'Asesoría en fusión empresarial',
-    },
-    {
-      id: 2,
-      titulo: 'Defensa Penal ABC',
-      estado: 'Pendiente',
-      fecha: '2023-04-10',
-      descripcion: 'Defensa en caso de fraude',
-    },
-  ];
-
-  // Datos de ejemplo para las citas
-  const citas = [
-    {
-      id: 1,
-      fecha: '2023-04-20',
-      hora: '10:00',
-      tipo: 'Consulta inicial',
-      abogado: 'Dr. Juan Pérez',
-    },
-    {
-      id: 2,
-      fecha: '2023-04-25',
-      hora: '15:30',
-      tipo: 'Seguimiento',
-      abogado: 'Dra. María López',
-    },
-  ];
+  const getStatusColor = (status) => {
+    switch (status.toLowerCase()) {
+      case 'en proceso':
+        return 'warning';
+      case 'activo':
+        return 'info';
+      case 'completado':
+        return 'success';
+      case 'en espera':
+        return 'error';
+      default:
+        return 'default';
+    }
+  };
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
@@ -89,13 +96,15 @@ const Dashboard = () => {
         {/* Bienvenida y perfil */}
         <Grid item xs={12}>
           <Paper sx={{ p: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Box>
-              <Typography variant="h4" gutterBottom>
-                Bienvenido, {user?.usuario || 'Usuario'}
-              </Typography>
-              <Typography variant="body1" color="text.secondary">
-                Panel de control para gestionar tus casos y citas
-              </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <Box>
+                <Typography variant="h4" gutterBottom>
+                  Bienvenido, {user?.usuario || 'Usuario'}
+                </Typography>
+                <Typography variant="body1" color="text.secondary">
+                  Panel de control para gestionar tus casos y citas
+                </Typography>
+              </Box>
             </Box>
             <Box>
               <IconButton onClick={handleMenuClick}>
@@ -124,7 +133,7 @@ const Dashboard = () => {
               Mis Casos
             </Typography>
             <Typography variant="h3" color="primary">
-              {casos.length}
+              {loading ? '...' : cases.length}
             </Typography>
             <Typography variant="body2" color="text.secondary">
               Casos activos
@@ -137,7 +146,7 @@ const Dashboard = () => {
               Próximas Citas
             </Typography>
             <Typography variant="h3" color="primary">
-              {citas.length}
+              {loading ? '...' : appointments.length}
             </Typography>
             <Typography variant="body2" color="text.secondary">
               Citas programadas
@@ -150,10 +159,10 @@ const Dashboard = () => {
               Documentos
             </Typography>
             <Typography variant="h3" color="primary">
-              5
+              {loading ? '...' : cases.filter(c => c.status === 'En proceso').length}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Documentos pendientes
+              Casos en proceso
             </Typography>
           </Paper>
         </Grid>
@@ -170,7 +179,6 @@ const Dashboard = () => {
             >
               <Tab label="Mis Casos" />
               <Tab label="Mis Citas" />
-              <Tab label="Documentos" />
             </Tabs>
 
             {/* Contenido de los tabs */}
@@ -187,38 +195,46 @@ const Dashboard = () => {
                     </Button>
                   </Box>
                   <Grid container spacing={3}>
-                    {casos.map((caso) => (
-                      <Grid item xs={12} md={6} key={caso.id}>
-                        <Card>
-                          <CardContent>
-                            <Typography variant="h6" gutterBottom>
-                              {caso.titulo}
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary" gutterBottom>
-                              Estado: {caso.estado}
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary" gutterBottom>
-                              Fecha: {caso.fecha}
-                            </Typography>
-                            <Typography variant="body2">
-                              {caso.descripcion}
-                            </Typography>
-                          </CardContent>
-                          <CardActions>
-                            <Button size="small" color="primary">
-                              Ver Detalles
-                            </Button>
-                            <Button size="small" color="primary">
-                              Actualizar
-                            </Button>
-                          </CardActions>
-                        </Card>
+                    {loading ? (
+                      <Grid item xs={12}>
+                        <Typography>Cargando casos...</Typography>
                       </Grid>
-                    ))}
+                    ) : cases.length === 0 ? (
+                      <Grid item xs={12}>
+                        <Typography>No hay casos registrados</Typography>
+                      </Grid>
+                    ) : (
+                      cases.map((caso) => (
+                        <Grid item xs={12} md={6} key={caso.id}>
+                          <Card>
+                            <CardContent>
+                              <Typography variant="h6" gutterBottom>
+                                {caso.client_name}
+                              </Typography>
+                              <Typography variant="body2" color="text.secondary" gutterBottom>
+                                Tipo: {caso.case_type}
+                              </Typography>
+                              <Box sx={{ mb: 2 }}>
+                                <Chip
+                                  label={caso.status}
+                                  color={getStatusColor(caso.status)}
+                                  size="small"
+                                />
+                              </Box>
+                              <Typography variant="body2" color="text.secondary">
+                                Asignado a: {caso.assigned_to}
+                              </Typography>
+                              <Typography variant="body2" color="text.secondary">
+                                Fecha: {new Date(caso.start_date).toLocaleDateString()}
+                              </Typography>
+                            </CardContent>
+                          </Card>
+                        </Grid>
+                      ))
+                    )}
                   </Grid>
                 </Box>
               )}
-
               {tabValue === 1 && (
                 <Box>
                   <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
@@ -227,69 +243,41 @@ const Dashboard = () => {
                       color="primary"
                       startIcon={<Add />}
                     >
-                      Agendar Cita
+                      Nueva Cita
                     </Button>
                   </Box>
-                  <List>
-                    {citas.map((cita) => (
-                      <React.Fragment key={cita.id}>
-                        <ListItem>
-                          <ListItemIcon>
-                            <Event color="primary" />
-                          </ListItemIcon>
-                          <ListItemText
-                            primary={`${cita.tipo} - ${cita.abogado}`}
-                            secondary={`${cita.fecha} a las ${cita.hora}`}
-                          />
-                          <Button variant="outlined" size="small">
-                            Modificar
-                          </Button>
-                        </ListItem>
-                        <Divider />
-                      </React.Fragment>
-                    ))}
-                  </List>
-                </Box>
-              )}
-
-              {tabValue === 2 && (
-                <Box>
-                  <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      startIcon={<Add />}
-                    >
-                      Subir Documento
-                    </Button>
-                  </Box>
-                  <List>
-                    <ListItem>
-                      <ListItemIcon>
-                        <Description color="primary" />
-                      </ListItemIcon>
-                      <ListItemText
-                        primary="Contrato de Servicios"
-                        secondary="Subido el 15/04/2023"
-                      />
-                      <Button variant="outlined" size="small">
-                        Descargar
-                      </Button>
-                    </ListItem>
-                    <Divider />
-                    <ListItem>
-                      <ListItemIcon>
-                        <Description color="primary" />
-                      </ListItemIcon>
-                      <ListItemText
-                        primary="Poder Legal"
-                        secondary="Subido el 10/04/2023"
-                      />
-                      <Button variant="outlined" size="small">
-                        Descargar
-                      </Button>
-                    </ListItem>
-                  </List>
+                  <Grid container spacing={3}>
+                    {loading ? (
+                      <Grid item xs={12}>
+                        <Typography>Cargando citas...</Typography>
+                      </Grid>
+                    ) : appointments.length === 0 ? (
+                      <Grid item xs={12}>
+                        <Typography>No hay citas programadas</Typography>
+                      </Grid>
+                    ) : (
+                      appointments.map((cita) => (
+                        <Grid item xs={12} md={6} key={cita.id}>
+                          <Card>
+                            <CardContent>
+                              <Typography variant="h6" gutterBottom>
+                                {cita.client_name}
+                              </Typography>
+                              <Typography variant="body2" color="text.secondary" gutterBottom>
+                                Tipo: {cita.case_type}
+                              </Typography>
+                              <Typography variant="body2" color="text.secondary">
+                                Fecha: {new Date(cita.start_date).toLocaleDateString()}
+                              </Typography>
+                              <Typography variant="body2" color="text.secondary">
+                                Asignado a: {cita.assigned_to}
+                              </Typography>
+                            </CardContent>
+                          </Card>
+                        </Grid>
+                      ))
+                    )}
+                  </Grid>
                 </Box>
               )}
             </Box>

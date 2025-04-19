@@ -26,7 +26,7 @@ import {
   Delete as DeleteIcon,
   Event as EventIcon,
 } from '@mui/icons-material';
-import { getAllRecords, createRecord, updateRecord, deleteRecord } from '../services/records.service';
+import { getAllAppointments, createAppointment, updateAppointment, deleteAppointment } from '../services/appointments.service';
 
 const Appointments = () => {
   const [appointments, setAppointments] = useState([]);
@@ -40,7 +40,8 @@ const Appointments = () => {
     hora: '09:00',
     cliente: '',
     tipo: 'Consulta',
-    estado: 'Programada',
+    estado: 'Pendiente',
+    assigned_to: 'Dr. García'
   });
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
@@ -52,11 +53,7 @@ const Appointments = () => {
   const fetchAppointments = async () => {
     try {
       setLoading(true);
-      const response = await getAllRecords();
-      // Filtrar solo las citas
-      const appointmentsData = response.data.filter(
-        (item) => item.tipo === 'Consulta' || item.tipo === 'Reunión'
-      );
+      const appointmentsData = await getAllAppointments();
       setAppointments(appointmentsData);
     } catch (error) {
       console.error('Error al cargar citas:', error);
@@ -75,7 +72,8 @@ const Appointments = () => {
         hora: appointmentData.hora || '09:00',
         cliente: appointmentData.cliente || '',
         tipo: appointmentData.tipo || 'Consulta',
-        estado: appointmentData.estado || 'Programada',
+        estado: appointmentData.estado || 'Pendiente',
+        assigned_to: appointmentData.assigned_to || 'Dr. García'
       });
     } else {
       setCurrentAppointment(null);
@@ -86,7 +84,8 @@ const Appointments = () => {
         hora: '09:00',
         cliente: '',
         tipo: 'Consulta',
-        estado: 'Programada',
+        estado: 'Pendiente',
+        assigned_to: 'Dr. García'
       });
     }
     setOpenDialog(true);
@@ -108,10 +107,23 @@ const Appointments = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      const appointmentData = {
+        ...formData,
+        // Asegurarnos de que los campos requeridos estén presentes
+        titulo: formData.titulo.trim(),
+        descripcion: formData.descripcion.trim(),
+        fecha: formData.fecha,
+        hora: formData.hora,
+        cliente: formData.cliente.trim(),
+        tipo: formData.tipo,
+        estado: formData.estado,
+        assigned_to: formData.assigned_to
+      };
+
       if (currentAppointment) {
-        await updateRecord(currentAppointment.id, formData);
+        await updateAppointment(currentAppointment.id, appointmentData);
       } else {
-        await createRecord(formData);
+        await createAppointment(appointmentData);
       }
       fetchAppointments();
       handleCloseDialog();
@@ -123,7 +135,7 @@ const Appointments = () => {
   const handleDelete = async (id) => {
     if (window.confirm('¿Está seguro de eliminar esta cita?')) {
       try {
-        await deleteRecord(id);
+        await deleteAppointment(id);
         fetchAppointments();
       } catch (error) {
         console.error('Error al eliminar cita:', error);
@@ -285,7 +297,6 @@ const Appointments = () => {
                   onChange={handleChange}
                   multiline
                   rows={3}
-                  required
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -306,11 +317,12 @@ const Appointments = () => {
                   name="tipo"
                   value={formData.tipo}
                   onChange={handleChange}
-                  sx={{ mb: 2 }}
+                  required
                 >
-                  <MenuItem value="consulta">Consulta</MenuItem>
-                  <MenuItem value="seguimiento">Seguimiento</MenuItem>
-                  <MenuItem value="audiencia">Audiencia</MenuItem>
+                  <MenuItem value="Consulta">Consulta</MenuItem>
+                  <MenuItem value="Reunión">Reunión</MenuItem>
+                  <MenuItem value="Seguimiento">Seguimiento</MenuItem>
+                  <MenuItem value="Audiencia">Audiencia</MenuItem>
                 </TextField>
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -321,11 +333,28 @@ const Appointments = () => {
                   name="estado"
                   value={formData.estado}
                   onChange={handleChange}
-                  sx={{ mb: 2 }}
+                  required
                 >
-                  <MenuItem value="pendiente">Pendiente</MenuItem>
-                  <MenuItem value="confirmada">Confirmada</MenuItem>
-                  <MenuItem value="cancelada">Cancelada</MenuItem>
+                  <MenuItem value="Pendiente">Pendiente</MenuItem>
+                  <MenuItem value="Confirmada">Confirmada</MenuItem>
+                  <MenuItem value="Cancelada">Cancelada</MenuItem>
+                  <MenuItem value="Completada">Completada</MenuItem>
+                </TextField>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  select
+                  fullWidth
+                  label="Asignado a"
+                  name="assigned_to"
+                  value={formData.assigned_to}
+                  onChange={handleChange}
+                  required
+                >
+                  <MenuItem value="Dr. García">Dr. García</MenuItem>
+                  <MenuItem value="Dra. Sánchez">Dra. Sánchez</MenuItem>
+                  <MenuItem value="Dr. Martínez">Dr. Martínez</MenuItem>
+                  <MenuItem value="Dra. López">Dra. López</MenuItem>
                 </TextField>
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -336,10 +365,8 @@ const Appointments = () => {
                   type="date"
                   value={formData.fecha}
                   onChange={handleChange}
-                  sx={{
-                    '& label': {
-                      transform: 'translate(14px, -9px) scale(0.75)',
-                    },
+                  InputLabelProps={{
+                    shrink: true,
                   }}
                   required
                 />
@@ -352,10 +379,8 @@ const Appointments = () => {
                   type="time"
                   value={formData.hora}
                   onChange={handleChange}
-                  sx={{
-                    '& label': {
-                      transform: 'translate(14px, -9px) scale(0.75)',
-                    },
+                  InputLabelProps={{
+                    shrink: true,
                   }}
                   required
                 />

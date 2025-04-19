@@ -4,32 +4,57 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
 // Obtener todos los registros
 export const getAllRecords = async () => {
-  const response = await axios.get(`${API_URL}/records`);
-  return response.data;
+  try {
+    const response = await axios.get(`${API_URL}/records`);
+    return response.data.data;
+  } catch (error) {
+    console.error('Error al obtener registros:', error);
+    throw error;
+  }
 };
 
 // Obtener un registro por ID
 export const getRecordById = async (id) => {
-  const response = await axios.get(`${API_URL}/records/${id}`);
-  return response.data;
+  try {
+    const response = await axios.get(`${API_URL}/records/${id}`);
+    return response;
+  } catch (error) {
+    console.error('Error al obtener registro:', error);
+    throw error;
+  }
 };
 
 // Crear un nuevo registro
 export const createRecord = async (recordData) => {
-  const response = await axios.post(`${API_URL}/records`, recordData);
-  return response.data;
+  try {
+    const response = await axios.post(`${API_URL}/records`, recordData);
+    return response;
+  } catch (error) {
+    console.error('Error al crear registro:', error);
+    throw error;
+  }
 };
 
 // Actualizar un registro
 export const updateRecord = async (id, recordData) => {
-  const response = await axios.put(`${API_URL}/records/${id}`, recordData);
-  return response.data;
+  try {
+    const response = await axios.put(`${API_URL}/records/${id}`, recordData);
+    return response;
+  } catch (error) {
+    console.error('Error al actualizar registro:', error);
+    throw error;
+  }
 };
 
 // Eliminar un registro
 export const deleteRecord = async (id) => {
-  const response = await axios.delete(`${API_URL}/records/${id}`);
-  return response.data;
+  try {
+    const response = await axios.delete(`${API_URL}/records/${id}`);
+    return response;
+  } catch (error) {
+    console.error('Error al eliminar registro:', error);
+    throw error;
+  }
 };
 
 // Obtener registros por tipo

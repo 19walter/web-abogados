@@ -9,6 +9,7 @@ const models = require('./models');
 // Importa las rutas
 const authRoutes = require('./routes/auth.routes');
 const recordsRoutes = require('./routes/records.routes');
+const appointmentsRoutes = require('./routes/appointments.routes');
 
 const app = express();
 
@@ -25,6 +26,7 @@ app.get('/', (req, res) => {
 // Rutas de la API
 app.use('/api/auth', authRoutes);
 app.use('/api/records', recordsRoutes);
+app.use('/api/appointments', appointmentsRoutes);
 
 // Puerto
 const PORT = process.env.PORT || 3001;
