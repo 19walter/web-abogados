@@ -74,6 +74,27 @@ INSERT INTO `usuarios` (`id_users`, `usuario`, `contrasena`, `creador`) VALUES
 (1, 'admin', 'admin123', '2025-03-29 16:07:15');
 
 --
+-- Crear tabla de citas
+CREATE TABLE IF NOT EXISTS appointments (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  titulo VARCHAR(200) NOT NULL,
+  descripcion TEXT,
+  fecha DATE NOT NULL,
+  hora TIME NOT NULL,
+  cliente VARCHAR(200) NOT NULL,
+  tipo ENUM('Consulta', 'Reunión', 'Seguimiento', 'Audiencia') NOT NULL,
+  estado ENUM('Pendiente', 'Confirmada', 'Cancelada', 'Completada') NOT NULL DEFAULT 'Pendiente',
+  assigned_to VARCHAR(100) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
+
+-- Insertar algunas citas de ejemplo
+INSERT INTO appointments (titulo, descripcion, fecha, hora, cliente, tipo, estado, assigned_to) VALUES
+('Consulta Inicial', 'Primera consulta para caso de divorcio', '2024-05-01', '09:00:00', 'Juan Pérez', 'Consulta', 'Pendiente', 'Dr. García'),
+('Reunión de Seguimiento', 'Revisión de avances del caso', '2024-05-02', '14:30:00', 'María Rodríguez', 'Seguimiento', 'Confirmada', 'Dra. Sánchez'),
+('Audiencia Preliminar', 'Presentación de pruebas', '2024-05-03', '11:00:00', 'Carlos Gómez', 'Audiencia', 'Pendiente', 'Dr. Martínez');
+
+--
 -- Índices para tablas volcadas
 --
 
