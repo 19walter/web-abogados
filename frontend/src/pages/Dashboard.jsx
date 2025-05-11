@@ -261,12 +261,28 @@ const Dashboard = () => {
                         <Grid span={6} key={cita.cita_id}>
                           <Card>
                             <CardContent>
-                              <Typography variant="body2" color="text.secondary" gutterBottom>
-                                Comunicación ID: {cita.comunicacion_id}
+                              <Typography variant="h6" gutterBottom>
+                                {cita.Cliente?.nombre_apellido || `Cliente #${cita.cliente_id}`}
                               </Typography>
                               <Typography variant="body2" color="text.secondary" gutterBottom>
-                                Respuesta: {cita.respuesta}
+                                Abogado: {cita.Abogado?.nombre_apellido || `Abogado #${cita.abogado_id}`}
                               </Typography>
+                              <Typography variant="body2" color="text.secondary" gutterBottom>
+                                Fecha: {cita.fecha_hora ? new Date(cita.fecha_hora).toLocaleString() : 'Sin fecha'}
+                              </Typography>
+                              <Typography variant="body2" color="text.secondary" gutterBottom>
+                                Motivo: {cita.motivo || 'Sin motivo'}
+                              </Typography>
+                              <Typography variant="body2" color="text.secondary" gutterBottom>
+                                Lugar: {cita.lugar || 'Sin lugar'}
+                              </Typography>
+                              <Box sx={{ mt: 1 }}>
+                                <Chip
+                                  label={cita.estado}
+                                  color={getStatusColor(cita.estado)}
+                                  size="small"
+                                />
+                              </Box>
                             </CardContent>
                           </Card>
                         </Grid>

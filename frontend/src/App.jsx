@@ -4,6 +4,7 @@ import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { AuthProvider } from './context/AuthContext';
 import theme from './theme';
+import RoleRoute from './components/RoleRoute';
 
 // Layouts
 import MainLayout from './layouts/MainLayout';
@@ -27,6 +28,9 @@ import Appointments from './pages/Appointments';
 import Documents from './pages/Documents';
 import Profile from './pages/Profile';
 import CitasReport from './pages/CitasReport';
+import Clientes from './pages/Clientes';
+import Usuarios from './pages/Usuarios';
+import Especialidades from './pages/Especialidades';
 
 // Componentes protegidos
 import PrivateRoute from './components/PrivateRoute';
@@ -59,6 +63,9 @@ function App() {
               <Route path="documentos" element={<Documents />} />
               <Route path="perfil" element={<Profile />} />
               <Route path="reportes-citas" element={<CitasReport />} />
+              <Route path="clientes" element={<Clientes />} />
+              <Route path="usuarios" element={<RoleRoute allowedRoles={['admin', 'asistente']}><Usuarios /></RoleRoute>} />
+              <Route path="especialidades" element={<RoleRoute allowedRoles={['admin', 'asistente']}><Especialidades /></RoleRoute>} />
             </Route>
           </Routes>
         </Router>

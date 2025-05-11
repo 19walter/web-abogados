@@ -1,15 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const { verifyToken } = require('../middleware/auth.middleware');
-const { getAllAbogados } = require('../controllers/usuarios.controller');
+const { getAllUsuarios, getAllAbogados, createUsuario, updateUsuario } = require('../controllers/usuarios.controller');
+const { authorizeRoles } = require('../middleware/role.middleware');
 
 // Obtener todos los abogados
-router.get('/', verifyToken, (req, res) => {
-  if (req.query.rol === 'abogado') {
-    return getAllAbogados(req, res);
-  }
-  // Puedes agregar más lógica para otros roles si lo necesitas
-  res.status(400).json({ message: 'Rol no soportado' });
-});
+router.get('/', verifyToken, getAllUsuarios);
+
+router.post('/', verifyToken, authorizeRoles('admin', 'asistente'), createUsuario);
+router.put('/:id', verifyToken, authorizeRoles('admin', 'asistente'), updateUsuario);
 
 module.exports = router; 

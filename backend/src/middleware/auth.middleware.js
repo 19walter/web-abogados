@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
+const { Usuario } = require('../models');
 
-const verifyToken = (req, res, next) => {
+const verifyToken = async (req, res, next) => {
     try {
         // Obtener el token del header
         const authHeader = req.headers.authorization;
@@ -23,7 +24,17 @@ const verifyToken = (req, res, next) => {
         // Verificar el token
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         
-        // Añadir el ID del usuario al request para uso posterior
+        // Buscar el usuario en la base de datos
+        const usuario = await Usuario.findByPk(decoded.userId);
+        if (!usuario) {
+            return res.status(401).json({
+                success: false,
+                message: 'Usuario no encontrado'
+            });
+        }
+
+        // Añadir el usuario al request para uso posterior
+        req.user = usuario;
         req.userId = decoded.userId;
         
         next();

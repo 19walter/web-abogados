@@ -45,6 +45,7 @@ exports.createCita = async (req, res) => {
     const cita = await Cita.create(req.body);
     res.status(201).json({ success: true, data: cita, message: 'Cita creada exitosamente' });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: 'Error al crear la cita', error: error.message });
   }
 };
@@ -59,6 +60,7 @@ exports.updateCita = async (req, res) => {
     await cita.update(req.body);
     res.json({ success: true, data: cita, message: 'Cita actualizada exitosamente' });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: 'Error al actualizar la cita', error: error.message });
   }
 };

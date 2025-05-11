@@ -117,13 +117,28 @@ const Appointments = () => {
     }));
   };
 
+  const formatFechaMariaDB = (fecha) => {
+    if (!fecha) return '';
+    // Si ya está en formato YYYY-MM-DD HH:mm:ss, retorna igual
+    if (/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/.test(fecha)) return fecha;
+    // Si viene de input type="datetime-local" (YYYY-MM-DDTHH:mm)
+    if (/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(fecha)) {
+      return fecha.replace('T', ' ') + ':00';
+    }
+    return fecha;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      const dataToSend = {
+        ...formData,
+        fecha_hora: formatFechaMariaDB(formData.fecha_hora)
+      };
       if (currentCita) {
-        await updateAppointment(currentCita.cita_id, formData);
+        await updateAppointment(currentCita.cita_id, dataToSend);
       } else {
-        await createAppointment(formData);
+        await createAppointment(dataToSend);
       }
       fetchCitas();
       handleCloseDialog();

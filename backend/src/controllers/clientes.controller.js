@@ -7,4 +7,13 @@ exports.getAllClientes = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
+};
+
+exports.createCliente = async (req, res) => {
+  try {
+    const cliente = await Cliente.create(req.body);
+    res.status(201).json({ success: true, data: cliente });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 }; 

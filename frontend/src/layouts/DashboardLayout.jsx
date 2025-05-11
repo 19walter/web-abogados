@@ -27,6 +27,7 @@ import {
   Person as PersonIcon,
   Logout as LogoutIcon,
   BarChart as BarChartIcon,
+  Settings as SettingsIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
 
@@ -62,9 +63,12 @@ const DashboardLayout = () => {
   ];
   if (user?.rol === 'admin' || user?.rol === 'asistente') {
     menuItems.push(
-      { text: 'Casos', icon: <GavelIcon />, path: '/dashboard/casos' },
-      { text: 'Citas', icon: <EventIcon />, path: '/dashboard/citas' },
-      { text: 'Documentos', icon: <DescriptionIcon />, path: '/dashboard/documentos' },
+    { text: 'Casos', icon: <GavelIcon />, path: '/dashboard/casos' },
+    { text: 'Citas', icon: <EventIcon />, path: '/dashboard/citas' },
+      { text: 'Clientes', icon: <PersonIcon />, path: '/dashboard/clientes' },
+      { text: 'Usuarios', icon: <SettingsIcon />, path: '/dashboard/usuarios' },
+      { text: 'Especialidades', icon: <DescriptionIcon />, path: '/dashboard/especialidades' },
+    { text: 'Documentos', icon: <DescriptionIcon />, path: '/dashboard/documentos' },
       { text: 'Reportes de Citas', icon: <BarChartIcon />, path: '/dashboard/reportes-citas' }
     );
   } else if (user?.rol === 'abogado') {
@@ -227,4 +231,4 @@ const DashboardLayout = () => {
   );
 };
 
-export default DashboardLayout;
+export default DashboardLayout; 
