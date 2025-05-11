@@ -27,7 +27,7 @@ import {
   Delete as DeleteIcon,
   Visibility as VisibilityIcon,
 } from '@mui/icons-material';
-import { getAllRecords, createRecord, updateRecord, deleteRecord } from '../services/records.service';
+import { getAllCasos, createCaso, updateCaso, deleteCaso, getAllClientes, getAllAbogados } from '../services/records.service';
 
 const Cases = () => {
   const [cases, setCases] = useState([]);
@@ -35,23 +35,40 @@ const Cases = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [currentCase, setCurrentCase] = useState(null);
   const [formData, setFormData] = useState({
-    client_name: '',
-    case_type: '',
-    status: 'En proceso',
-    start_date: new Date().toISOString().split('T')[0],
-    assigned_to: '',
-    case_notes: ''
+    cliente_id: '',
+    tipo_caso: '',
+    estado: 'En proceso',
+    fecha_inicio: new Date().toISOString().split('T')[0],
+    abogado_id: '',
   });
+  const [clientes, setClientes] = useState([]);
+  const [abogados, setAbogados] = useState([]);
+
+  // Opciones válidas para los selects
+  const tipoCasoOptions = [
+    "Divorcio",
+    "Demanda laboral",
+    "Contrato comercial",
+    "Propiedad intelectual"
+  ];
+  const estadoOptions = [
+    "En proceso",
+    "Activo",
+    "Completado",
+    "En espera"
+  ];
 
   useEffect(() => {
     fetchCases();
+    fetchClientes();
+    fetchAbogados();
   }, []);
 
   const fetchCases = async () => {
     try {
       setLoading(true);
-      const casesData = await getAllRecords();
-      setCases(casesData);
+      const response = await getAllCasos();
+      setCases(response.data || []);
     } catch (error) {
       console.error('Error al cargar casos:', error);
     } finally {
@@ -59,26 +76,44 @@ const Cases = () => {
     }
   };
 
+  const fetchClientes = async () => {
+    try {
+      const response = await getAllClientes();
+      setClientes(response.data || []);
+    } catch (error) {
+      console.error('Error al cargar clientes:', error);
+      setClientes([]);
+    }
+  };
+
+  const fetchAbogados = async () => {
+    try {
+      const response = await getAllAbogados();
+      setAbogados(response.data || []);
+    } catch (error) {
+      console.error('Error al cargar abogados:', error);
+      setAbogados([]);
+    }
+  };
+
   const handleOpenDialog = (caseData = null) => {
     if (caseData) {
       setCurrentCase(caseData);
       setFormData({
-        client_name: caseData.client_name || '',
-        case_type: caseData.case_type || '',
-        status: caseData.status || 'En proceso',
-        start_date: caseData.start_date || new Date().toISOString().split('T')[0],
-        assigned_to: caseData.assigned_to || '',
-        case_notes: caseData.case_notes || ''
+        cliente_id: caseData.cliente_id || '',
+        tipo_caso: caseData.tipo_caso || '',
+        estado: caseData.estado || 'En proceso',
+        fecha_inicio: caseData.fecha_inicio ? caseData.fecha_inicio.split('T')[0] : new Date().toISOString().split('T')[0],
+        abogado_id: caseData.abogado_id || '',
       });
     } else {
       setCurrentCase(null);
       setFormData({
-        client_name: '',
-        case_type: '',
-        status: 'En proceso',
-        start_date: new Date().toISOString().split('T')[0],
-        assigned_to: '',
-        case_notes: ''
+        cliente_id: '',
+        tipo_caso: '',
+        estado: 'En proceso',
+        fecha_inicio: new Date().toISOString().split('T')[0],
+        abogado_id: '',
       });
     }
     setOpenDialog(true);
@@ -101,9 +136,9 @@ const Cases = () => {
     e.preventDefault();
     try {
       if (currentCase) {
-        await updateRecord(currentCase.id, formData);
+        await updateCaso(currentCase.caso_id, formData);
       } else {
-        await createRecord(formData);
+        await createCaso(formData);
       }
       fetchCases();
       handleCloseDialog();
@@ -115,7 +150,7 @@ const Cases = () => {
   const handleDelete = async (id) => {
     if (window.confirm('¿Está seguro de eliminar este caso?')) {
       try {
-        await deleteRecord(id);
+        await deleteCaso(id);
         fetchCases();
       } catch (error) {
         console.error('Error al eliminar caso:', error);
@@ -123,8 +158,9 @@ const Cases = () => {
     }
   };
 
-  const getStatusColor = (status) => {
-    switch (status.toLowerCase()) {
+  const getStatusColor = (estado) => {
+    if (!estado) return 'default';
+    switch (estado.toLowerCase()) {
       case 'en proceso':
         return 'warning';
       case 'activo':
@@ -137,6 +173,14 @@ const Cases = () => {
         return 'default';
     }
   };
+
+  // Al preparar los valores para el formulario:
+  const tipoCasoValue = tipoCasoOptions.includes(formData.tipo_caso)
+    ? formData.tipo_caso
+    : "";
+  const estadoValue = estadoOptions.includes(formData.estado)
+    ? formData.estado
+    : "";
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
@@ -180,23 +224,23 @@ const Cases = () => {
               </TableRow>
             ) : (
               cases.map((caseItem) => (
-                <TableRow key={caseItem.id}>
-                  <TableCell>{caseItem.client_name}</TableCell>
-                  <TableCell>{caseItem.case_type}</TableCell>
+                <TableRow key={caseItem.caso_id}>
+                  <TableCell>{caseItem.Cliente?.nombre_apellido || `Cliente #${caseItem.cliente_id}`}</TableCell>
+                  <TableCell>{caseItem.tipo_caso}</TableCell>
                   <TableCell>
                     <Chip
-                      label={caseItem.status}
-                      color={getStatusColor(caseItem.status)}
+                      label={caseItem.estado}
+                      color={getStatusColor(caseItem.estado)}
                       size="small"
                     />
                   </TableCell>
-                  <TableCell>{new Date(caseItem.start_date).toLocaleDateString()}</TableCell>
-                  <TableCell>{caseItem.assigned_to}</TableCell>
+                  <TableCell>{caseItem.fecha_inicio ? new Date(caseItem.fecha_inicio).toLocaleDateString() : ''}</TableCell>
+                  <TableCell>{caseItem.Usuario?.nombre_apellido || `Abogado #${caseItem.abogado_id}`}</TableCell>
                   <TableCell>
                     <IconButton size="small" onClick={() => handleOpenDialog(caseItem)}>
                       <EditIcon />
                     </IconButton>
-                    <IconButton size="small" onClick={() => handleDelete(caseItem.id)}>
+                    <IconButton size="small" onClick={() => handleDelete(caseItem.caso_id)}>
                       <DeleteIcon />
                     </IconButton>
                   </TableCell>
@@ -214,50 +258,55 @@ const Cases = () => {
         <form onSubmit={handleSubmit}>
           <DialogContent>
             <TextField
-              fullWidth
-              label="Nombre del Cliente"
-              name="client_name"
-              value={formData.client_name}
-              onChange={handleChange}
-              required
-              margin="normal"
-            />
-            <TextField
               select
               fullWidth
-              label="Tipo de Caso"
-              name="case_type"
-              value={formData.case_type}
+              label="Nombre del Cliente"
+              name="cliente_id"
+              value={formData.cliente_id}
               onChange={handleChange}
               required
               margin="normal"
             >
-              <MenuItem value="Divorcio">Divorcio</MenuItem>
-              <MenuItem value="Demanda laboral">Demanda laboral</MenuItem>
-              <MenuItem value="Contrato comercial">Contrato comercial</MenuItem>
-              <MenuItem value="Propiedad intelectual">Propiedad intelectual</MenuItem>
+              {clientes.map((cliente) => (
+                <MenuItem key={cliente.cliente_id} value={cliente.cliente_id}>
+                  {cliente.nombre_apellido}
+                </MenuItem>
+              ))}
+            </TextField>
+            <TextField
+              select
+              fullWidth
+              label="Tipo de Caso"
+              name="tipo_caso"
+              value={tipoCasoValue}
+              onChange={handleChange}
+              required
+              margin="normal"
+            >
+              {tipoCasoOptions.map(option => (
+                <MenuItem key={option} value={option}>{option}</MenuItem>
+              ))}
             </TextField>
             <TextField
               select
               fullWidth
               label="Estado"
-              name="status"
-              value={formData.status}
+              name="estado"
+              value={estadoValue}
               onChange={handleChange}
               required
               margin="normal"
             >
-              <MenuItem value="En proceso">En proceso</MenuItem>
-              <MenuItem value="Activo">Activo</MenuItem>
-              <MenuItem value="Completado">Completado</MenuItem>
-              <MenuItem value="En espera">En espera</MenuItem>
+              {estadoOptions.map(option => (
+                <MenuItem key={option} value={option}>{option}</MenuItem>
+              ))}
             </TextField>
             <TextField
               fullWidth
               label="Fecha de Inicio"
-              name="start_date"
+              name="fecha_inicio"
               type="date"
-              value={formData.start_date}
+              value={formData.fecha_inicio}
               onChange={handleChange}
               required
               margin="normal"
@@ -269,27 +318,18 @@ const Cases = () => {
               select
               fullWidth
               label="Asignado a"
-              name="assigned_to"
-              value={formData.assigned_to}
+              name="abogado_id"
+              value={formData.abogado_id}
               onChange={handleChange}
               required
               margin="normal"
             >
-              <MenuItem value="Dr. García">Dr. García</MenuItem>
-              <MenuItem value="Dra. Sánchez">Dra. Sánchez</MenuItem>
-              <MenuItem value="Dr. Martínez">Dr. Martínez</MenuItem>
-              <MenuItem value="Dra. López">Dra. López</MenuItem>
+              {abogados.map((abogado) => (
+                <MenuItem key={abogado.usuario_id} value={abogado.usuario_id}>
+                  {abogado.nombre_apellido}
+                </MenuItem>
+              ))}
             </TextField>
-            <TextField
-              fullWidth
-              label="Notas del Caso"
-              name="case_notes"
-              value={formData.case_notes}
-              onChange={handleChange}
-              multiline
-              rows={4}
-              margin="normal"
-            />
           </DialogContent>
           <DialogActions>
             <Button onClick={handleCloseDialog}>Cancelar</Button>

@@ -17,7 +17,7 @@ const Login = () => {
   const navigate = useNavigate();
   const { login: authLogin } = useAuth();
   const [formData, setFormData] = useState({
-    usuario: '',
+    correo: '',
     contrasena: '',
   });
   const [error, setError] = useState('');
@@ -77,7 +77,7 @@ const Login = () => {
           <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
             <Box
               component="img"
-              src="/assets/img/logo/logo.svg"
+              src="/assets/img/logo/header-logo1.svg"
               alt="Logo Legal Firm"
               sx={{
                 height: 50,
@@ -98,16 +98,17 @@ const Login = () => {
 
           <form onSubmit={handleSubmit}>
             <TextField
+              required
               fullWidth
-              label="Usuario"
-              name="usuario"
-              value={formData.usuario}
+              label="Correo"
+              name="correo"
+              type="email"
+              value={formData.correo}
               onChange={handleChange}
               margin="normal"
-              required
-              autoFocus
             />
             <TextField
+              required
               fullWidth
               label="Contraseña"
               name="contrasena"
@@ -115,24 +116,28 @@ const Login = () => {
               value={formData.contrasena}
               onChange={handleChange}
               margin="normal"
-              required
             />
             <Button
               type="submit"
               fullWidth
               variant="contained"
+              color="primary"
               size="large"
+              sx={{ mt: 3 }}
               disabled={loading}
-              sx={{ mt: 3, mb: 2 }}
             >
-              {loading ? <CircularProgress size={24} /> : 'Iniciar Sesión'}
+              {loading ? <CircularProgress size={24} color="inherit" /> : 'Iniciar Sesión'}
             </Button>
-            <Box sx={{ textAlign: 'center' }}>
-              <Link component={RouterLink} to="/register" variant="body2">
-                ¿No tienes una cuenta? Regístrate
-              </Link>
-            </Box>
           </form>
+
+          <Box sx={{ mt: 3, textAlign: 'center' }}>
+            <Typography variant="body2">
+              ¿No tienes una cuenta?{' '}
+              <Link component={RouterLink} to="/register">
+                Regístrate aquí
+              </Link>
+            </Typography>
+          </Box>
         </Paper>
       </Box>
     </Container>

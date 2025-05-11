@@ -75,8 +75,9 @@ const Dashboard = () => {
     setAnchorEl(null);
   };
 
-  const getStatusColor = (status) => {
-    switch (status.toLowerCase()) {
+  const getStatusColor = (estado) => {
+    if (!estado) return 'default';
+    switch (estado.toLowerCase()) {
       case 'en proceso':
         return 'warning';
       case 'activo':
@@ -92,9 +93,9 @@ const Dashboard = () => {
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-      <Grid container spacing={3}>
+      <Grid container spacing={3} columns={12}>
         {/* Bienvenida y perfil */}
-        <Grid item xs={12}>
+        <Grid span={12}>
           <Paper sx={{ p: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               <Box>
@@ -127,7 +128,7 @@ const Dashboard = () => {
         </Grid>
 
         {/* Resumen de estadísticas */}
-        <Grid item xs={12} md={4}>
+        <Grid span={4}>
           <Paper sx={{ p: 3, height: '100%' }}>
             <Typography variant="h6" gutterBottom>
               Mis Casos
@@ -140,7 +141,7 @@ const Dashboard = () => {
             </Typography>
           </Paper>
         </Grid>
-        <Grid item xs={12} md={4}>
+        <Grid span={4}>
           <Paper sx={{ p: 3, height: '100%' }}>
             <Typography variant="h6" gutterBottom>
               Próximas Citas
@@ -153,13 +154,13 @@ const Dashboard = () => {
             </Typography>
           </Paper>
         </Grid>
-        <Grid item xs={12} md={4}>
+        <Grid span={4}>
           <Paper sx={{ p: 3, height: '100%' }}>
             <Typography variant="h6" gutterBottom>
               Documentos
             </Typography>
             <Typography variant="h3" color="primary">
-              {loading ? '...' : cases.filter(c => c.status === 'En proceso').length}
+              {loading ? '...' : cases.filter(c => c.estado === 'En proceso').length}
             </Typography>
             <Typography variant="body2" color="text.secondary">
               Casos en proceso
@@ -168,7 +169,7 @@ const Dashboard = () => {
         </Grid>
 
         {/* Tabs para Casos y Citas */}
-        <Grid item xs={12}>
+        <Grid span={12}>
           <Paper sx={{ width: '100%' }}>
             <Tabs
               value={tabValue}
@@ -194,38 +195,38 @@ const Dashboard = () => {
                       Nuevo Caso
                     </Button>
                   </Box>
-                  <Grid container spacing={3}>
+                  <Grid container spacing={3} columns={12}>
                     {loading ? (
-                      <Grid item xs={12}>
+                      <Grid span={12}>
                         <Typography>Cargando casos...</Typography>
                       </Grid>
                     ) : cases.length === 0 ? (
-                      <Grid item xs={12}>
+                      <Grid span={12}>
                         <Typography>No hay casos registrados</Typography>
                       </Grid>
                     ) : (
                       cases.map((caso) => (
-                        <Grid item xs={12} md={6} key={caso.id}>
+                        <Grid span={6} key={caso.caso_id}>
                           <Card>
                             <CardContent>
                               <Typography variant="h6" gutterBottom>
-                                {caso.client_name}
+                                {caso.cliente_id ? (caso.Cliente?.nombre_apellido || `Cliente #${caso.cliente_id}`) : 'Sin cliente'}
                               </Typography>
                               <Typography variant="body2" color="text.secondary" gutterBottom>
-                                Tipo: {caso.case_type}
+                                Tipo: {caso.tipo_caso}
                               </Typography>
                               <Box sx={{ mb: 2 }}>
                                 <Chip
-                                  label={caso.status}
-                                  color={getStatusColor(caso.status)}
+                                  label={caso.estado}
+                                  color={getStatusColor(caso.estado)}
                                   size="small"
                                 />
                               </Box>
                               <Typography variant="body2" color="text.secondary">
-                                Asignado a: {caso.assigned_to}
+                                Asignado a: {caso.abogado_id ? (caso.Usuario?.nombre_apellido || `Abogado #${caso.abogado_id}`) : 'Sin abogado'}
                               </Typography>
                               <Typography variant="body2" color="text.secondary">
-                                Fecha: {new Date(caso.start_date).toLocaleDateString()}
+                                Fecha: {caso.fecha_inicio ? new Date(caso.fecha_inicio).toLocaleDateString() : 'Sin fecha'}
                               </Typography>
                             </CardContent>
                           </Card>
@@ -246,31 +247,25 @@ const Dashboard = () => {
                       Nueva Cita
                     </Button>
                   </Box>
-                  <Grid container spacing={3}>
+                  <Grid container spacing={3} columns={12}>
                     {loading ? (
-                      <Grid item xs={12}>
+                      <Grid span={12}>
                         <Typography>Cargando citas...</Typography>
                       </Grid>
                     ) : appointments.length === 0 ? (
-                      <Grid item xs={12}>
+                      <Grid span={12}>
                         <Typography>No hay citas programadas</Typography>
                       </Grid>
                     ) : (
                       appointments.map((cita) => (
-                        <Grid item xs={12} md={6} key={cita.id}>
+                        <Grid span={6} key={cita.cita_id}>
                           <Card>
                             <CardContent>
-                              <Typography variant="h6" gutterBottom>
-                                {cita.client_name}
+                              <Typography variant="body2" color="text.secondary" gutterBottom>
+                                Comunicación ID: {cita.comunicacion_id}
                               </Typography>
                               <Typography variant="body2" color="text.secondary" gutterBottom>
-                                Tipo: {cita.case_type}
-                              </Typography>
-                              <Typography variant="body2" color="text.secondary">
-                                Fecha: {new Date(cita.start_date).toLocaleDateString()}
-                              </Typography>
-                              <Typography variant="body2" color="text.secondary">
-                                Asignado a: {cita.assigned_to}
+                                Respuesta: {cita.respuesta}
                               </Typography>
                             </CardContent>
                           </Card>

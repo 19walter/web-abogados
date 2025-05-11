@@ -1,8 +1,8 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db.config');
 
-const Usuario = sequelize.define('Usuario', {
-  usuario_id: {
+const Cliente = sequelize.define('Cliente', {
+  cliente_id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true
@@ -15,17 +15,17 @@ const Usuario = sequelize.define('Usuario', {
     type: DataTypes.STRING(100),
     allowNull: false
   },
-  contrasena: {
-    type: DataTypes.STRING(100),
+  telefono: {
+    type: DataTypes.STRING(15),
     allowNull: false
   },
-  rol: {
-    type: DataTypes.STRING(20),
-    allowNull: false
+  mensaje: {
+    type: DataTypes.TEXT,
+    allowNull: true
   }
 }, {
-  tableName: 'usuarios',
+  tableName: 'clientes',
   timestamps: false
 });
 
-module.exports = Usuario; 
+module.exports = Cliente; 

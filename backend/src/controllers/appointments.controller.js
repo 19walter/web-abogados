@@ -1,116 +1,112 @@
-const Appointment = require('../models/appointment.model');
+const { Cita, Comunicacion, Cliente, Usuario, Caso } = require('../models');
 
 // Obtener todas las citas
-exports.getAllAppointments = async (req, res) => {
+exports.getAllCitas = async (req, res) => {
   try {
-    const appointments = await Appointment.findAll();
-    res.json({
-      success: true,
-      data: appointments
+    const citas = await Cita.findAll({
+      include: [
+        { model: Comunicacion },
+        { model: Cliente, attributes: ['nombre_apellido'] },
+        { model: Usuario, as: 'Abogado', attributes: ['nombre_apellido'] },
+        { model: Usuario, as: 'Asistente', attributes: ['nombre_apellido'] },
+        { model: Caso, attributes: ['tipo_caso'] }
+      ]
     });
+    res.json({ success: true, data: citas });
   } catch (error) {
-    console.error('Error al obtener citas:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error al obtener las citas'
-    });
+    res.status(500).json({ message: error.message });
   }
 };
 
 // Obtener una cita por ID
-exports.getAppointmentById = async (req, res) => {
+exports.getCitaById = async (req, res) => {
   try {
-    const appointment = await Appointment.findByPk(req.params.id);
-    if (!appointment) {
-      return res.status(404).json({
-        success: false,
-        message: 'Cita no encontrada'
-      });
+    const cita = await Cita.findByPk(req.params.id, {
+      include: [
+        { model: Comunicacion },
+        { model: Cliente, attributes: ['nombre_apellido'] },
+        { model: Usuario, as: 'Abogado', attributes: ['nombre_apellido'] },
+        { model: Usuario, as: 'Asistente', attributes: ['nombre_apellido'] },
+        { model: Caso, attributes: ['tipo_caso'] }
+      ]
+    });
+    if (!cita) {
+      return res.status(404).json({ message: 'Cita no encontrada' });
     }
-    res.json({
-      success: true,
-      data: appointment
-    });
+    res.json({ success: true, data: cita });
   } catch (error) {
-    console.error('Error al obtener cita:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error al obtener la cita'
-    });
+    res.status(500).json({ message: error.message });
   }
 };
 
 // Crear una nueva cita
-exports.createAppointment = async (req, res) => {
+exports.createCita = async (req, res) => {
   try {
-    console.log('Datos recibidos:', req.body);
-    const appointment = await Appointment.create(req.body);
-    res.status(201).json({
-      success: true,
-      data: appointment,
-      message: 'Cita creada exitosamente'
-    });
+    const cita = await Cita.create(req.body);
+    res.status(201).json({ success: true, data: cita, message: 'Cita creada exitosamente' });
   } catch (error) {
-    console.error('Error detallado al crear cita:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error al crear la cita',
-      error: error.message,
-      details: error.errors?.map(e => e.message)
-    });
+    res.status(500).json({ message: 'Error al crear la cita', error: error.message });
   }
 };
 
 // Actualizar una cita
-exports.updateAppointment = async (req, res) => {
+exports.updateCita = async (req, res) => {
   try {
-    const [updated] = await Appointment.update(req.body, {
-      where: { id: req.params.id }
-    });
-    if (updated) {
-      const updatedAppointment = await Appointment.findByPk(req.params.id);
-      res.json({
-        success: true,
-        data: updatedAppointment,
-        message: 'Cita actualizada exitosamente'
-      });
-    } else {
-      res.status(404).json({
-        success: false,
-        message: 'Cita no encontrada'
-      });
+    const cita = await Cita.findByPk(req.params.id);
+    if (!cita) {
+      return res.status(404).json({ message: 'Cita no encontrada' });
     }
+    await cita.update(req.body);
+    res.json({ success: true, data: cita, message: 'Cita actualizada exitosamente' });
   } catch (error) {
-    console.error('Error al actualizar cita:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error al actualizar la cita'
-    });
+    res.status(500).json({ message: 'Error al actualizar la cita', error: error.message });
   }
 };
 
 // Eliminar una cita
-exports.deleteAppointment = async (req, res) => {
+exports.deleteCita = async (req, res) => {
   try {
-    const deleted = await Appointment.destroy({
-      where: { id: req.params.id }
-    });
-    if (deleted) {
-      res.json({
-        success: true,
-        message: 'Cita eliminada exitosamente'
-      });
-    } else {
-      res.status(404).json({
-        success: false,
-        message: 'Cita no encontrada'
-      });
+    const cita = await Cita.findByPk(req.params.id);
+    if (!cita) {
+      return res.status(404).json({ message: 'Cita no encontrada' });
     }
+    await cita.destroy();
+    res.json({ success: true, message: 'Cita eliminada exitosamente' });
   } catch (error) {
-    console.error('Error al eliminar cita:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error al eliminar la cita'
+    res.status(500).json({ message: 'Error al eliminar la cita', error: error.message });
+  }
+};
+
+// Reporte: Citas por estado
+exports.getCitasPorEstado = async (req, res) => {
+  try {
+    const result = await Cita.findAll({
+      attributes: [
+        'estado',
+        [Cita.sequelize.fn('COUNT', Cita.sequelize.col('cita_id')), 'cantidad']
+      ],
+      group: ['estado']
     });
+    res.json({ success: true, data: result });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Reporte: Citas por mes
+exports.getCitasPorMes = async (req, res) => {
+  try {
+    const result = await Cita.findAll({
+      attributes: [
+        [Cita.sequelize.fn('MONTH', Cita.sequelize.col('fecha_hora')), 'mes'],
+        [Cita.sequelize.fn('YEAR', Cita.sequelize.col('fecha_hora')), 'anio'],
+        [Cita.sequelize.fn('COUNT', Cita.sequelize.col('cita_id')), 'cantidad']
+      ],
+      group: ['anio', 'mes'],
+      order: [['anio', 'ASC'], ['mes', 'ASC']]
+    });
+    res.json({ success: true, data: result });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 }; 

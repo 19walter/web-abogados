@@ -30,8 +30,8 @@ export const AuthProvider = ({ children }) => {
   const loadUser = async () => {
     try {
       const response = await getCurrentUser();
-      if (response.success) {
-        setUser(response.data);
+      if (response.success && response.data && response.data.user) {
+        setUser(response.data.user);
         setError(null);
       } else {
         setError(response.error);
@@ -50,8 +50,7 @@ export const AuthProvider = ({ children }) => {
     try {
       setLoading(true);
       const response = await loginService(credentials);
-      
-      if (response.success && response.data.token) {
+      if (response.success && response.data && response.data.token) {
         localStorage.setItem('token', response.data.token);
         setUser(response.data.user);
         setError(null);
@@ -60,9 +59,9 @@ export const AuthProvider = ({ children }) => {
       return { success: false, error: response.error || 'Credenciales inválidas' };
     } catch (error) {
       console.error('Error en login:', error);
-      return { 
-        success: false, 
-        error: error.response?.data?.message || 'Error al iniciar sesión' 
+      return {
+        success: false,
+        error: error.response?.data?.message || 'Error al iniciar sesión'
       };
     } finally {
       setLoading(false);

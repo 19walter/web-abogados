@@ -10,6 +10,8 @@ const models = require('./models');
 const authRoutes = require('./routes/auth.routes');
 const recordsRoutes = require('./routes/records.routes');
 const appointmentsRoutes = require('./routes/appointments.routes');
+const clientesRoutes = require('./routes/clientes.routes');
+const usuariosRoutes = require('./routes/usuarios.routes');
 
 const app = express();
 
@@ -27,6 +29,8 @@ app.get('/', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/records', recordsRoutes);
 app.use('/api/appointments', appointmentsRoutes);
+app.use('/api/clientes', clientesRoutes);
+app.use('/api/usuarios', usuariosRoutes);
 
 // Puerto
 const PORT = process.env.PORT || 3001;

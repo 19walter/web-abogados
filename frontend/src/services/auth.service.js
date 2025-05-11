@@ -33,7 +33,7 @@ export const login = async (credentials) => {
     const response = await axios.post(`${API_URL}/auth/login`, credentials);
     if (response.data.success && response.data.token) {
       localStorage.setItem('token', response.data.token);
-      return { success: true, data: response.data };
+      return { success: true, data: { token: response.data.token, user: response.data.user } };
     }
     return { success: false, error: response.data.message || 'Error al iniciar sesión' };
   } catch (error) {
@@ -62,14 +62,15 @@ export const logout = () => {
 
 export const getCurrentUser = async () => {
   try {
-    // Verificar si hay un token antes de hacer la petición
     const token = localStorage.getItem('token');
     if (!token) {
       return { success: false, error: 'No hay token de autenticación' };
     }
-
     const response = await axios.get(`${API_URL}/auth/me`);
-    return { success: true, data: response.data };
+    if (response.data.success && response.data.user) {
+      return { success: true, data: { user: response.data.user } };
+    }
+    return { success: false, error: response.data.message || 'Error al obtener datos del usuario' };
   } catch (error) {
     // Si el error es 404, significa que el endpoint no existe
     if (error.response?.status === 404) {

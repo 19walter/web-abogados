@@ -26,6 +26,7 @@ import Cases from './pages/Cases';
 import Appointments from './pages/Appointments';
 import Documents from './pages/Documents';
 import Profile from './pages/Profile';
+import CitasReport from './pages/CitasReport';
 
 // Componentes protegidos
 import PrivateRoute from './components/PrivateRoute';
@@ -57,6 +58,7 @@ function App() {
               <Route path="citas" element={<Appointments />} />
               <Route path="documentos" element={<Documents />} />
               <Route path="perfil" element={<Profile />} />
+              <Route path="reportes-citas" element={<CitasReport />} />
             </Route>
           </Routes>
         </Router>

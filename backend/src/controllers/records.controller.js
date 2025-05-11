@@ -1,56 +1,66 @@
-const Record = require('../models/Record');
+const { Caso, Cliente, Usuario } = require('../models');
 
-exports.getAllRecords = async (req, res) => {
+exports.getAllCasos = async (req, res) => {
   try {
-    const records = await Record.findAll();
-    res.json(records);
+    const casos = await Caso.findAll({
+      include: [
+        { model: Cliente },
+        { model: Usuario, as: 'Usuario', foreignKey: 'abogado_id' }
+      ]
+    });
+    res.json({ success: true, data: casos });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-exports.createRecord = async (req, res) => {
+exports.createCaso = async (req, res) => {
   try {
-    const record = await Record.create(req.body);
-    res.status(201).json(record);
+    const caso = await Caso.create(req.body);
+    res.status(201).json({ success: true, data: caso });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
 };
 
-exports.getRecordById = async (req, res) => {
+exports.getCasoById = async (req, res) => {
   try {
-    const record = await Record.findByPk(req.params.id);
-    if (!record) {
-      return res.status(404).json({ message: 'Registro no encontrado' });
+    const caso = await Caso.findByPk(req.params.id, {
+      include: [
+        { model: Cliente },
+        { model: Usuario, as: 'Usuario', foreignKey: 'abogado_id' }
+      ]
+    });
+    if (!caso) {
+      return res.status(404).json({ message: 'Caso no encontrado' });
     }
-    res.json(record);
+    res.json({ success: true, data: caso });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-exports.updateRecord = async (req, res) => {
+exports.updateCaso = async (req, res) => {
   try {
-    const record = await Record.findByPk(req.params.id);
-    if (!record) {
-      return res.status(404).json({ message: 'Registro no encontrado' });
+    const caso = await Caso.findByPk(req.params.id);
+    if (!caso) {
+      return res.status(404).json({ message: 'Caso no encontrado' });
     }
-    await record.update(req.body);
-    res.json(record);
+    await caso.update(req.body);
+    res.json({ success: true, data: caso });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
 };
 
-exports.deleteRecord = async (req, res) => {
+exports.deleteCaso = async (req, res) => {
   try {
-    const record = await Record.findByPk(req.params.id);
-    if (!record) {
-      return res.status(404).json({ message: 'Registro no encontrado' });
+    const caso = await Caso.findByPk(req.params.id);
+    if (!caso) {
+      return res.status(404).json({ message: 'Caso no encontrado' });
     }
-    await record.destroy();
-    res.json({ message: 'Registro eliminado' });
+    await caso.destroy();
+    res.json({ success: true, message: 'Caso eliminado' });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
