@@ -34,6 +34,12 @@ app.use('/api/clientes', clientesRoutes);
 app.use('/api/usuarios', usuariosRoutes);
 app.use('/api/especialidades', especialidadesRoutes);
 
+// Middleware global de manejo de errores
+app.use((err, req, res, next) => {
+  console.error('Error global:', err);
+  res.status(500).json({ message: err.message, stack: err.stack });
+});
+
 // Puerto
 const PORT = process.env.PORT || 3001;
 

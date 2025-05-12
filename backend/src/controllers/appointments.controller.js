@@ -89,6 +89,7 @@ exports.getCitasPorEstado = async (req, res) => {
       ],
       group: ['estado']
     });
+    console.log('Resultado SQL citas por estado:', result);
     res.json({ success: true, data: result });
   } catch (error) {
     res.status(500).json({ message: error.message });

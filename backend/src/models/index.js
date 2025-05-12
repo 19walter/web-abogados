@@ -63,7 +63,7 @@ Cita.belongsTo(Usuario, { foreignKey: 'asistente_id', as: 'Asistente' });
 Cita.belongsTo(Caso, { foreignKey: 'caso_id' });
 
 // Relación N:M entre Usuario (abogado) y Especialidad
-Usuario.belongsToMany(Especialidad, { through: AbogadoEspecialidad, foreignKey: 'abogado_id', otherKey: 'especialidad_id' });
+Usuario.belongsToMany(Especialidad, { through: AbogadoEspecialidad, foreignKey: 'abogado_id', otherKey: 'especialidad_id', as: 'especialidads' });
 Especialidad.belongsToMany(Usuario, { through: AbogadoEspecialidad, foreignKey: 'especialidad_id', otherKey: 'abogado_id' });
 
 module.exports = {

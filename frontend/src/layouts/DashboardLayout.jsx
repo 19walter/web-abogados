@@ -68,6 +68,7 @@ const DashboardLayout = () => {
       { text: 'Clientes', icon: <PersonIcon />, path: '/dashboard/clientes' },
       { text: 'Usuarios', icon: <SettingsIcon />, path: '/dashboard/usuarios' },
       { text: 'Especialidades', icon: <DescriptionIcon />, path: '/dashboard/especialidades' },
+      { text: 'Gestión de Especialidades', icon: <GavelIcon />, path: '/dashboard/abogados-especialidades' },
     { text: 'Documentos', icon: <DescriptionIcon />, path: '/dashboard/documentos' },
       { text: 'Reportes de Citas', icon: <BarChartIcon />, path: '/dashboard/reportes-citas' }
     );

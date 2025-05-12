@@ -6,7 +6,7 @@ exports.getAllUsuarios = async (req, res) => {
     if (req.query.rol) where.rol = req.query.rol;
     const usuarios = await Usuario.findAll({
       where,
-      include: [{ model: Especialidad, through: { attributes: [] } }]
+      include: [{ model: Especialidad, as: 'especialidads', through: { attributes: [] } }]
     });
     res.json({ success: true, data: usuarios });
   } catch (error) {
@@ -26,7 +26,7 @@ exports.createUsuario = async (req, res) => {
     if (userData.rol === 'abogado' && Array.isArray(especialidades)) {
       await usuario.setEspecialidads(especialidades); // setEspecialidads es el método generado por Sequelize
     }
-    const usuarioConEspecialidades = await Usuario.findByPk(usuario.usuario_id, { include: [{ model: Especialidad }] });
+    const usuarioConEspecialidades = await Usuario.findByPk(usuario.usuario_id, { include: [{ model: Especialidad, as: 'especialidads' }] });
     res.status(201).json({ success: true, data: usuarioConEspecialidades });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -35,16 +35,33 @@ exports.createUsuario = async (req, res) => {
 
 exports.updateUsuario = async (req, res) => {
   try {
-    const { especialidades, ...userData } = req.body;
+    const { especialidades, contrasena, ...userData } = req.body;
+    console.log('Datos recibidos para actualizar usuario:', req.body);
     const usuario = await Usuario.findByPk(req.params.id);
-    if (!usuario) return res.status(404).json({ message: 'Usuario no encontrado' });
-    await usuario.update(userData);
-    if (usuario.rol === 'abogado' && Array.isArray(especialidades)) {
-      await usuario.setEspecialidads(especialidades);
+    if (!usuario) {
+      console.log('Usuario no encontrado:', req.params.id);
+      return res.status(404).json({ message: 'Usuario no encontrado' });
     }
-    const usuarioConEspecialidades = await Usuario.findByPk(usuario.usuario_id, { include: [{ model: Especialidad }] });
+    // Solo actualiza la contraseña si viene y no está vacía
+    if (typeof contrasena === 'string' && contrasena.trim() !== '') {
+      userData.contrasena = contrasena;
+    }
+    await usuario.update(userData);
+    if (usuario.rol === 'abogado') {
+      console.log('usuario.setEspecialidads existe?', typeof usuario.setEspecialidads);
+      console.log('especialidades:', especialidades);
+      if (Array.isArray(especialidades)) {
+        const validEspecialidades = especialidades.filter(e => e != null);
+        console.log('Asignando especialidades filtradas:', validEspecialidades);
+        await usuario.setEspecialidads(validEspecialidades);
+      } else {
+        console.log('No se recibió un array de especialidades:', especialidades);
+      }
+    }
+    const usuarioConEspecialidades = await Usuario.findByPk(usuario.usuario_id, { include: [{ model: Especialidad, as: 'especialidads' }] });
     res.json({ success: true, data: usuarioConEspecialidades });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Error al actualizar usuario:', error);
+    res.status(500).json({ message: error.message, stack: error.stack });
   }
 }; 

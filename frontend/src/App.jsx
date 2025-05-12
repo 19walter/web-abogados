@@ -31,6 +31,7 @@ import CitasReport from './pages/CitasReport';
 import Clientes from './pages/Clientes';
 import Usuarios from './pages/Usuarios';
 import Especialidades from './pages/Especialidades';
+import AbogadosEspecialidades from './pages/AbogadosEspecialidades';
 
 // Componentes protegidos
 import PrivateRoute from './components/PrivateRoute';
@@ -66,6 +67,7 @@ function App() {
               <Route path="clientes" element={<Clientes />} />
               <Route path="usuarios" element={<RoleRoute allowedRoles={['admin', 'asistente']}><Usuarios /></RoleRoute>} />
               <Route path="especialidades" element={<RoleRoute allowedRoles={['admin', 'asistente']}><Especialidades /></RoleRoute>} />
+              <Route path="abogados-especialidades" element={<RoleRoute allowedRoles={['admin', 'asistente']}><AbogadosEspecialidades /></RoleRoute>} />
             </Route>
           </Routes>
         </Router>

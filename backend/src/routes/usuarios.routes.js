@@ -8,6 +8,11 @@ const { authorizeRoles } = require('../middleware/role.middleware');
 router.get('/', verifyToken, getAllUsuarios);
 
 router.post('/', verifyToken, authorizeRoles('admin', 'asistente'), createUsuario);
-router.put('/:id', verifyToken, authorizeRoles('admin', 'asistente'), updateUsuario);
+
+// Ruta PUT con log para depuración
+router.put('/:id', verifyToken, authorizeRoles('admin', 'asistente'), (req, res, next) => {
+  console.log('PUT /api/usuarios/:id', req.params.id, req.body);
+  updateUsuario(req, res, next);
+});
 
 module.exports = router; 

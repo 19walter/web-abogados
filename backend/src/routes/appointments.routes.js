@@ -27,7 +27,10 @@ router.put('/:id', verifyToken, updateCita);
 router.delete('/:id', verifyToken, deleteCita);
 
 // Reportes
-router.get('/reportes/por-estado', verifyToken, getCitasPorEstado);
+router.get('/reportes/por-estado', verifyToken, (req, res, next) => {
+  console.log('¡Petición recibida a /reportes/por-estado!');
+  next();
+}, getCitasPorEstado);
 router.get('/reportes/por-mes', verifyToken, getCitasPorMes);
 
 module.exports = router; 
