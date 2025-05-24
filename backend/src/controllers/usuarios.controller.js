@@ -2,14 +2,33 @@ const { Usuario, Especialidad } = require('../models');
 
 exports.getAllUsuarios = async (req, res) => {
   try {
+    console.log('GET /usuarios - Query params:', req.query);
+    console.log('GET /usuarios - Headers:', req.headers);
+    
     const where = {};
-    if (req.query.rol) where.rol = req.query.rol;
+    if (req.query.rol) {
+      where.rol = req.query.rol;
+      console.log('Filtrando por rol:', req.query.rol);
+    }
+    
+    console.log('Query where:', where);
+    
     const usuarios = await Usuario.findAll({
       where,
       include: [{ model: Especialidad, as: 'especialidads', through: { attributes: [] } }]
     });
+    
+    console.log('Usuarios encontrados:', usuarios.length);
+    console.log('Primer usuario (si existe):', usuarios[0] ? {
+      id: usuarios[0].usuario_id,
+      nombre: usuarios[0].nombre_apellido,
+      rol: usuarios[0].rol,
+      especialidades: usuarios[0].especialidads?.map(e => ({ id: e.id, nombre: e.nombre }))
+    } : 'No hay usuarios');
+    
     res.json({ success: true, data: usuarios });
   } catch (error) {
+    console.error('Error en getAllUsuarios:', error);
     res.status(500).json({ message: error.message });
   }
 };

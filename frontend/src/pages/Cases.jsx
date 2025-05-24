@@ -49,6 +49,7 @@ const Cases = () => {
   const [formData, setFormData] = useState({
     cliente_id: '',
     especialidad_id: '',
+    tipo_caso: '',
     estado: 'En proceso',
     fecha_inicio: new Date().toISOString().split('T')[0],
     abogado_id: '',
@@ -80,16 +81,39 @@ const Cases = () => {
 
   useEffect(() => {
     console.log('Abogados:', abogados);
-    if (formData.especialidad_id) {
-      const abogadosFiltrados = abogados.filter(abogado =>
-        abogado.especialidads?.some(esp => esp.id === parseInt(formData.especialidad_id))
-      );
-      setFilteredAbogados(abogadosFiltrados);
-      if (!abogadosFiltrados.some(a => a.usuario_id === formData.abogado_id)) {
-        setFormData(prev => ({ ...prev, abogado_id: "" }));
-      }
-    } else {
+    console.log('Especialidad seleccionada:', formData.especialidad_id);
+    
+    if (!formData.especialidad_id) {
+      console.log('No hay especialidad seleccionada o es undefined, reseteando filtros');
       setFilteredAbogados([]);
+      setFormData(prev => ({ ...prev, abogado_id: "" }));
+      return;
+    }
+
+    const especialidadSeleccionada = String(formData.especialidad_id);
+    console.log('Filtrando abogados para especialidad:', especialidadSeleccionada);
+    console.log('Especialidades de cada abogado:', abogados.map(a => ({
+      nombre: a.nombre_apellido,
+      especialidades: (a.especialidades || a.especialidads)?.map(e => ({ id: e.id || e.especialidad_id, nombre: e.nombre }))
+    })));
+    
+    const abogadosFiltrados = abogados.filter(abogado => {
+      const especialidades = abogado.especialidades || abogado.especialidads || [];
+      const tieneEspecialidad = especialidades.some(esp => {
+        const espId = String(esp.id || esp.especialidad_id);
+        const coincide = espId === especialidadSeleccionada;
+        console.log(`Comparando especialidad ${espId} (${esp.nombre}) con ${especialidadSeleccionada}: ${coincide}`);
+        return coincide;
+      });
+      console.log(`Abogado ${abogado.nombre_apellido} tiene la especialidad: ${tieneEspecialidad}`);
+      return tieneEspecialidad;
+    });
+    
+    console.log('Abogados filtrados:', abogadosFiltrados);
+    setFilteredAbogados(abogadosFiltrados);
+    
+    if (!abogadosFiltrados.some(a => a.usuario_id === formData.abogado_id)) {
+      console.log('Reseteando abogado_id porque no está en los filtrados');
       setFormData(prev => ({ ...prev, abogado_id: "" }));
     }
   }, [formData.especialidad_id, abogados]);
@@ -118,11 +142,26 @@ const Cases = () => {
 
   const fetchAbogados = async () => {
     try {
+      console.log('Iniciando fetchAbogados...');
       const response = await getAllAbogados();
-      setAbogados(response.data || []);
+      console.log('Respuesta de getAllAbogados:', response);
+      
+      if (response && response.data) {
+        console.log('Abogados recibidos:', response.data);
+        setAbogados(response.data);
+      } else {
+        console.error('Respuesta inválida de getAllAbogados:', response);
+        setAbogados([]);
+      }
     } catch (error) {
       console.error('Error al cargar abogados:', error);
       setAbogados([]);
+      // Mostrar mensaje al usuario
+      setSnackbar({
+        open: true,
+        message: 'Error al cargar los abogados. Por favor, verifica tu sesión.',
+        severity: 'error'
+      });
     }
   };
 
@@ -142,6 +181,7 @@ const Cases = () => {
       setFormData({
         cliente_id: caseData.cliente_id ? String(caseData.cliente_id) : '',
         especialidad_id: caseData.especialidad_id ? String(caseData.especialidad_id) : '',
+        tipo_caso: caseData.tipo_caso || '',
         estado: caseData.estado || 'En proceso',
         fecha_inicio: caseData.fecha_inicio ? caseData.fecha_inicio.split('T')[0] : new Date().toISOString().split('T')[0],
         abogado_id: caseData.abogado_id ? String(caseData.abogado_id) : '',
@@ -152,6 +192,7 @@ const Cases = () => {
       setFormData({
         cliente_id: '',
         especialidad_id: '',
+        tipo_caso: '',
         estado: 'En proceso',
         fecha_inicio: new Date().toISOString().split('T')[0],
         abogado_id: '',
@@ -168,10 +209,15 @@ const Cases = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    console.log('handleChange:', { name, value, currentFormData: formData });
+    setFormData((prev) => {
+      const newData = {
+        ...prev,
+        [name]: value,
+      };
+      console.log('Nuevo formData:', newData);
+      return newData;
+    });
   };
 
   const handleFileSelect = (event) => {
@@ -265,6 +311,8 @@ const Cases = () => {
     }
   };
 
+  console.log('filteredAbogados:', filteredAbogados);
+
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
@@ -338,9 +386,10 @@ const Cases = () => {
         <DialogTitle>{currentCase ? 'Editar Caso' : 'Nuevo Caso'}</DialogTitle>
         <form onSubmit={handleSubmit}>
           <DialogContent>
-            <Grid container spacing={3}>
-              <Grid item xs={12} md={6}>
+            <Grid container columns={12} spacing={2}>
+              <Grid xs={12} md={6}>
                 <TextField
+                  id="cliente-select"
                   select
                   fullWidth
                   label="Cliente"
@@ -357,22 +406,27 @@ const Cases = () => {
                   ))}
                 </TextField>
                 <TextField
+                  id="especialidad-select"
                   select
                   fullWidth
                   label="Especialidad"
                   name="especialidad_id"
                   value={formData.especialidad_id || ""}
-                  onChange={handleChange}
+                  onChange={(e) => {
+                    console.log('Select de especialidad cambiado:', e.target.value);
+                    handleChange(e);
+                  }}
                   required
                   margin="normal"
                 >
                   {especialidades.map((esp) => (
-                    <MenuItem key={esp.especialidad_id} value={String(esp.especialidad_id)}>
+                    <MenuItem key={esp.id || esp.especialidad_id} value={String(esp.id || esp.especialidad_id)}>
                       {esp.nombre}
                     </MenuItem>
                   ))}
                 </TextField>
                 <TextField
+                  id="abogado-select"
                   select
                   fullWidth
                   label="Abogado"
@@ -383,13 +437,17 @@ const Cases = () => {
                   margin="normal"
                   disabled={!formData.especialidad_id}
                 >
-                  {filteredAbogados.map((abogado) => (
-                    <MenuItem key={abogado.usuario_id} value={String(abogado.usuario_id)}>
-                      {abogado.nombre_apellido}
-                    </MenuItem>
-                  ))}
+                  {filteredAbogados.length === 0
+                    ? <MenuItem value="">No hay abogados para esta especialidad</MenuItem>
+                    : filteredAbogados.map((abogado) => (
+                        <MenuItem key={abogado.usuario_id} value={String(abogado.usuario_id)}>
+                          {abogado.nombre_apellido}
+                        </MenuItem>
+                      ))
+                  }
                 </TextField>
                 <TextField
+                  id="estado-select"
                   select
                   fullWidth
                   label="Estado"
@@ -405,9 +463,20 @@ const Cases = () => {
                     </MenuItem>
                   ))}
                 </TextField>
+                <TextField
+                  id="tipo-caso-input"
+                  fullWidth
+                  label="Tipo de Caso"
+                  name="tipo_caso"
+                  value={formData.tipo_caso}
+                  onChange={handleChange}
+                  required
+                  margin="normal"
+                />
               </Grid>
               <Grid item xs={12} md={6}>
                 <TextField
+                  id="descripcion-input"
                   fullWidth
                   label="Descripción"
                   name="descripcion"

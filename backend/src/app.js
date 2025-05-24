@@ -1,6 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
+const fs = require('fs');
+const path = require('path');
 
 // Importa la conexión a la base de datos y los modelos
 const sequelize = require('./config/db.config');
@@ -21,6 +23,13 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Crear la carpeta uploads si no existe
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir);
+  console.log('Carpeta uploads creada automáticamente.');
+}
 
 // Rutas básicas
 app.get('/', (req, res) => {
