@@ -26,6 +26,8 @@ import {
   Description as DescriptionIcon,
   Person as PersonIcon,
   Logout as LogoutIcon,
+  BarChart as BarChartIcon,
+  Settings as SettingsIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
 
@@ -55,12 +57,36 @@ const DashboardLayout = () => {
     navigate('/login');
   };
 
-  const menuItems = [
+  // Menú dinámico según el rol
+  let menuItems = [
     { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
-    { text: 'Casos', icon: <GavelIcon />, path: '/dashboard/casos' },
-    { text: 'Citas', icon: <EventIcon />, path: '/dashboard/citas' },
-    { text: 'Documentos', icon: <DescriptionIcon />, path: '/dashboard/documentos' },
   ];
+
+  if (user?.rol === 'admin') {
+    menuItems.push(
+      { text: 'Casos', icon: <GavelIcon />, path: '/dashboard/casos' },
+      { text: 'Citas', icon: <EventIcon />, path: '/dashboard/citas' },
+      { text: 'Clientes', icon: <PersonIcon />, path: '/dashboard/clientes' },
+      { text: 'Usuarios', icon: <SettingsIcon />, path: '/dashboard/usuarios' },
+      { text: 'Especialidades', icon: <DescriptionIcon />, path: '/dashboard/especialidades' },
+      { text: 'Gestión de Especialidades', icon: <GavelIcon />, path: '/dashboard/abogados-especialidades' },
+      { text: 'Documentos', icon: <DescriptionIcon />, path: '/dashboard/documentos' }
+    );
+  } else if (user?.rol === 'asistente') {
+    menuItems.push(
+      { text: 'Casos', icon: <GavelIcon />, path: '/dashboard/casos' },
+      { text: 'Citas', icon: <EventIcon />, path: '/dashboard/citas' }
+    );
+  } else if (user?.rol === 'abogado') {
+    menuItems.push(
+      { text: 'Casos', icon: <GavelIcon />, path: '/dashboard/casos' },
+      { text: 'Citas', icon: <EventIcon />, path: '/dashboard/citas' }
+    );
+  } else if (user?.rol === 'admin'){
+    menuItems.push(
+        { text: 'Usuarios', icon: <SettingsIcon />, path: '/dashboard/usuarios' },
+    )
+  }
 
   const drawer = (
     <div>
@@ -94,7 +120,7 @@ const DashboardLayout = () => {
   );
 
   return (
-    <Box sx={{ display: 'flex' }}>
+    <>
       <AppBar
         position="fixed"
         sx={{
@@ -118,7 +144,7 @@ const DashboardLayout = () => {
           <Box sx={{ flexGrow: 1 }} />
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <Typography variant="body1" sx={{ mr: 2 }}>
-              {user?.usuario || 'Usuario'}
+              {user?.nombre_apellido || 'Usuario'} ({user?.rol})
             </Typography>
             <IconButton
               onClick={handleMenu}
@@ -130,7 +156,7 @@ const DashboardLayout = () => {
               aria-label="abrir menú de usuario"
             >
               <Avatar sx={{ width: 32, height: 32, bgcolor: theme.palette.primary.main }}>
-                {user?.usuario?.[0]?.toUpperCase()}
+                {user?.nombre_apellido?.[0]?.toUpperCase()}
               </Avatar>
             </IconButton>
             <Menu
@@ -205,12 +231,13 @@ const DashboardLayout = () => {
           width: { sm: `calc(100% - ${drawerWidth}px)` },
           backgroundColor: theme.palette.background.default,
           minHeight: '100vh',
+          marginLeft: { sm: `${drawerWidth}px` },
         }}
       >
         <Toolbar />
         <Outlet />
       </Box>
-    </Box>
+    </>
   );
 };
 

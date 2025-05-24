@@ -1,22 +1,20 @@
-const { User } = require('../models');
+const { Usuario } = require('../models');
 const jwt = require('jsonwebtoken');
 
 const login = async (req, res) => {
   try {
-    const { usuario, contrasena } = req.body;
+    const { correo, contrasena } = req.body;
 
     // Validar que se envíen los campos requeridos
-    if (!usuario || !contrasena) {
+    if (!correo || !contrasena) {
       return res.status(400).json({
         success: false,
-        message: 'Usuario y contraseña son requeridos'
+        message: 'Correo y contraseña son requeridos'
       });
     }
 
     // Buscar el usuario en la base de datos
-    const user = await User.findOne({ 
-      where: { usuario } 
-    });
+    const user = await Usuario.findOne({ where: { correo } });
 
     if (!user) {
       return res.status(401).json({
@@ -35,7 +33,7 @@ const login = async (req, res) => {
 
     // Generar token JWT
     const token = jwt.sign(
-      { userId: user.id_users },
+      { userId: user.usuario_id, rol: user.rol },
       process.env.JWT_SECRET || 'tu_clave_secreta_aqui',
       { expiresIn: '24h' }
     );
@@ -45,9 +43,10 @@ const login = async (req, res) => {
       success: true,
       token,
       user: {
-        id: user.id_users,
-        usuario: user.usuario,
-        creador: user.creador
+        usuario_id: user.usuario_id,
+        nombre_apellido: user.nombre_apellido,
+        correo: user.correo,
+        rol: user.rol
       }
     });
 
@@ -62,7 +61,7 @@ const login = async (req, res) => {
 
 const getCurrentUser = async (req, res) => {
   try {
-    const user = await User.findByPk(req.userId);
+    const user = await Usuario.findByPk(req.userId);
     
     if (!user) {
       return res.status(404).json({
@@ -74,9 +73,10 @@ const getCurrentUser = async (req, res) => {
     res.json({
       success: true,
       user: {
-        id: user.id_users,
-        usuario: user.usuario,
-        creador: user.creador
+        usuario_id: user.usuario_id,
+        nombre_apellido: user.nombre_apellido,
+        correo: user.correo,
+        rol: user.rol
       }
     });
   } catch (error) {

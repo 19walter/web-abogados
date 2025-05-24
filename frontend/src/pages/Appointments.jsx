@@ -18,6 +18,12 @@ import {
   Menu,
   MenuItem,
   Chip,
+  TableContainer,
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -27,34 +33,41 @@ import {
   Event as EventIcon,
 } from '@mui/icons-material';
 import { getAllAppointments, createAppointment, updateAppointment, deleteAppointment } from '../services/appointments.service';
+import { getAllClientes, getAllAbogados, getAllCasos } from '../services/records.service';
+
+const estadoOptions = ['Pendiente', 'Realizada', 'Cancelada'];
 
 const Appointments = () => {
-  const [appointments, setAppointments] = useState([]);
+  const [citas, setCitas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [openDialog, setOpenDialog] = useState(false);
-  const [currentAppointment, setCurrentAppointment] = useState(null);
+  const [currentCita, setCurrentCita] = useState(null);
   const [formData, setFormData] = useState({
-    titulo: '',
-    descripcion: '',
-    fecha: new Date().toISOString().split('T')[0],
-    hora: '09:00',
-    cliente: '',
-    tipo: 'Consulta',
+    cliente_id: '',
+    abogado_id: '',
+    caso_id: '',
+    fecha_hora: '',
+    lugar: '',
+    motivo: '',
     estado: 'Pendiente',
-    assigned_to: 'Dr. García'
+    notas: ''
   });
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [selectedAppointment, setSelectedAppointment] = useState(null);
+  const [clientes, setClientes] = useState([]);
+  const [abogados, setAbogados] = useState([]);
+  const [casos, setCasos] = useState([]);
 
   useEffect(() => {
-    fetchAppointments();
+    fetchCitas();
+    getAllClientes().then(res => setClientes(res.data));
+    getAllAbogados().then(res => setAbogados(res.data));
+    getAllCasos().then(res => setCasos(res.data));
   }, []);
 
-  const fetchAppointments = async () => {
+  const fetchCitas = async () => {
     try {
       setLoading(true);
-      const appointmentsData = await getAllAppointments();
-      setAppointments(appointmentsData);
+      const data = await getAllAppointments();
+      setCitas(data || []);
     } catch (error) {
       console.error('Error al cargar citas:', error);
     } finally {
@@ -62,30 +75,30 @@ const Appointments = () => {
     }
   };
 
-  const handleOpenDialog = (appointmentData = null) => {
-    if (appointmentData) {
-      setCurrentAppointment(appointmentData);
+  const handleOpenDialog = (citaData = null) => {
+    if (citaData) {
+      setCurrentCita(citaData);
       setFormData({
-        titulo: appointmentData.titulo || '',
-        descripcion: appointmentData.descripcion || '',
-        fecha: appointmentData.fecha || new Date().toISOString().split('T')[0],
-        hora: appointmentData.hora || '09:00',
-        cliente: appointmentData.cliente || '',
-        tipo: appointmentData.tipo || 'Consulta',
-        estado: appointmentData.estado || 'Pendiente',
-        assigned_to: appointmentData.assigned_to || 'Dr. García'
+        cliente_id: citaData.cliente_id || '',
+        abogado_id: citaData.abogado_id || '',
+        caso_id: citaData.caso_id || '',
+        fecha_hora: citaData.fecha_hora ? citaData.fecha_hora.substring(0, 16) : '',
+        lugar: citaData.lugar || '',
+        motivo: citaData.motivo || '',
+        estado: citaData.estado || 'Pendiente',
+        notas: citaData.notas || ''
       });
     } else {
-      setCurrentAppointment(null);
+      setCurrentCita(null);
       setFormData({
-        titulo: '',
-        descripcion: '',
-        fecha: new Date().toISOString().split('T')[0],
-        hora: '09:00',
-        cliente: '',
-        tipo: 'Consulta',
+        cliente_id: '',
+        abogado_id: '',
+        caso_id: '',
+        fecha_hora: '',
+        lugar: '',
+        motivo: '',
         estado: 'Pendiente',
-        assigned_to: 'Dr. García'
+        notas: ''
       });
     }
     setOpenDialog(true);
@@ -93,7 +106,7 @@ const Appointments = () => {
 
   const handleCloseDialog = () => {
     setOpenDialog(false);
-    setCurrentAppointment(null);
+    setCurrentCita(null);
   };
 
   const handleChange = (e) => {
@@ -104,28 +117,30 @@ const Appointments = () => {
     }));
   };
 
+  const formatFechaMariaDB = (fecha) => {
+    if (!fecha) return '';
+    // Si ya está en formato YYYY-MM-DD HH:mm:ss, retorna igual
+    if (/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/.test(fecha)) return fecha;
+    // Si viene de input type="datetime-local" (YYYY-MM-DDTHH:mm)
+    if (/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(fecha)) {
+      return fecha.replace('T', ' ') + ':00';
+    }
+    return fecha;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const appointmentData = {
+      const dataToSend = {
         ...formData,
-        // Asegurarnos de que los campos requeridos estén presentes
-        titulo: formData.titulo.trim(),
-        descripcion: formData.descripcion.trim(),
-        fecha: formData.fecha,
-        hora: formData.hora,
-        cliente: formData.cliente.trim(),
-        tipo: formData.tipo,
-        estado: formData.estado,
-        assigned_to: formData.assigned_to
+        fecha_hora: formatFechaMariaDB(formData.fecha_hora)
       };
-
-      if (currentAppointment) {
-        await updateAppointment(currentAppointment.id, appointmentData);
+      if (currentCita) {
+        await updateAppointment(currentCita.cita_id, dataToSend);
       } else {
-        await createAppointment(appointmentData);
+        await createAppointment(dataToSend);
       }
-      fetchAppointments();
+      fetchCitas();
       handleCloseDialog();
     } catch (error) {
       console.error('Error al guardar cita:', error);
@@ -136,97 +151,11 @@ const Appointments = () => {
     if (window.confirm('¿Está seguro de eliminar esta cita?')) {
       try {
         await deleteAppointment(id);
-        fetchAppointments();
+        fetchCitas();
       } catch (error) {
         console.error('Error al eliminar cita:', error);
       }
     }
-  };
-
-  const handleMenuOpen = (event, appointmentData) => {
-    setAnchorEl(event.currentTarget);
-    setSelectedAppointment(appointmentData);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-    setSelectedAppointment(null);
-  };
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'Programada':
-        return 'info';
-      case 'Confirmada':
-        return 'success';
-      case 'Cancelada':
-        return 'error';
-      case 'Completada':
-        return 'primary';
-      default:
-        return 'default';
-    }
-  };
-
-  const formatDate = (dateString) => {
-    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    return new Date(dateString).toLocaleDateString('es-ES', options);
-  };
-
-  const renderContent = () => {
-    if (loading) {
-      return <Typography>Cargando citas...</Typography>;
-    }
-    if (appointments.length === 0) {
-      return (
-        <Paper sx={{ p: 3, textAlign: 'center' }}>
-          <Typography>No hay citas programadas</Typography>
-        </Paper>
-      );
-    }
-    return (
-      <Grid container spacing={3}>
-        {appointments.map((appointment) => (
-          <Grid item xs={12} sm={6} md={4} key={appointment.id}>
-            <Card>
-              <CardContent>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                  <Typography variant="h6" component="div">
-                    {appointment.titulo}
-                  </Typography>
-                  <IconButton
-                    size="small"
-                    onClick={(e) => handleMenuOpen(e, appointment)}
-                  >
-                    <MoreVertIcon />
-                  </IconButton>
-                </Box>
-                <Typography color="text.secondary" gutterBottom>
-                  {appointment.cliente}
-                </Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                  <EventIcon fontSize="small" sx={{ mr: 1 }} />
-                  <Typography variant="body2">
-                    {formatDate(appointment.fecha)} - {appointment.hora}
-                  </Typography>
-                </Box>
-                <Typography variant="body2" sx={{ mb: 1 }}>
-                  {appointment.descripcion}
-                </Typography>
-                <Chip
-                  label={appointment.estado}
-                  color={getStatusColor(appointment.estado)}
-                  size="small"
-                />
-              </CardContent>
-              <CardActions>
-                <Button size="small">Ver Detalles</Button>
-              </CardActions>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
-    );
   };
 
   return (
@@ -243,155 +172,156 @@ const Appointments = () => {
           Nueva Cita
         </Button>
       </Box>
-
-      {renderContent()}
-
-      <Menu
-        anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
-        onClose={handleMenuClose}
-      >
-        <MenuItem
-          onClick={() => {
-            handleMenuClose();
-            handleOpenDialog(selectedAppointment);
-          }}
-        >
-          <EditIcon fontSize="small" sx={{ mr: 1 }} />
-          Editar
-        </MenuItem>
-        <MenuItem
-          onClick={() => {
-            handleMenuClose();
-            handleDelete(selectedAppointment.id);
-          }}
-        >
-          <DeleteIcon fontSize="small" sx={{ mr: 1 }} />
-          Eliminar
-        </MenuItem>
-      </Menu>
-
-      <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="md" fullWidth>
-        <DialogTitle>
-          {currentAppointment ? 'Editar Cita' : 'Nueva Cita'}
-        </DialogTitle>
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Cliente</TableCell>
+              <TableCell>Abogado</TableCell>
+              <TableCell>Caso</TableCell>
+              <TableCell>Fecha y Hora</TableCell>
+              <TableCell>Motivo</TableCell>
+              <TableCell>Estado</TableCell>
+              <TableCell>Acciones</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={7} align="center">
+                  Cargando...
+                </TableCell>
+              </TableRow>
+            ) : citas.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={7} align="center">
+                  No hay citas registradas
+                </TableCell>
+              </TableRow>
+            ) : (
+              citas.map((cita) => (
+                <TableRow key={cita.cita_id}>
+                  <TableCell>{cita.Cliente?.nombre_apellido || `Cliente #${cita.cliente_id}`}</TableCell>
+                  <TableCell>{cita.Abogado?.nombre_apellido || `Abogado #${cita.abogado_id}`}</TableCell>
+                  <TableCell>{cita.Caso?.tipo_caso || `Caso #${cita.caso_id}`}</TableCell>
+                  <TableCell>{cita.fecha_hora ? new Date(cita.fecha_hora).toLocaleString() : ''}</TableCell>
+                  <TableCell>{cita.motivo}</TableCell>
+                  <TableCell>{cita.estado}</TableCell>
+                  <TableCell>
+                    <IconButton size="small" onClick={() => handleOpenDialog(cita)}>
+                      <EditIcon />
+                    </IconButton>
+                    <IconButton size="small" onClick={() => handleDelete(cita.cita_id)}>
+                      <DeleteIcon />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
+        <DialogTitle>{currentCita ? 'Editar Cita' : 'Nueva Cita'}</DialogTitle>
         <form onSubmit={handleSubmit}>
           <DialogContent>
-            <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Título"
-                  name="titulo"
-                  value={formData.titulo}
-                  onChange={handleChange}
-                  required
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Descripción"
-                  name="descripcion"
-                  value={formData.descripcion}
-                  onChange={handleChange}
-                  multiline
-                  rows={3}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Cliente"
-                  name="cliente"
-                  value={formData.cliente}
-                  onChange={handleChange}
-                  required
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  select
-                  fullWidth
-                  label="Tipo de Cita"
-                  name="tipo"
-                  value={formData.tipo}
-                  onChange={handleChange}
-                  required
-                >
-                  <MenuItem value="Consulta">Consulta</MenuItem>
-                  <MenuItem value="Reunión">Reunión</MenuItem>
-                  <MenuItem value="Seguimiento">Seguimiento</MenuItem>
-                  <MenuItem value="Audiencia">Audiencia</MenuItem>
-                </TextField>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  select
-                  fullWidth
-                  label="Estado"
-                  name="estado"
-                  value={formData.estado}
-                  onChange={handleChange}
-                  required
-                >
-                  <MenuItem value="Pendiente">Pendiente</MenuItem>
-                  <MenuItem value="Confirmada">Confirmada</MenuItem>
-                  <MenuItem value="Cancelada">Cancelada</MenuItem>
-                  <MenuItem value="Completada">Completada</MenuItem>
-                </TextField>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  select
-                  fullWidth
-                  label="Asignado a"
-                  name="assigned_to"
-                  value={formData.assigned_to}
-                  onChange={handleChange}
-                  required
-                >
-                  <MenuItem value="Dr. García">Dr. García</MenuItem>
-                  <MenuItem value="Dra. Sánchez">Dra. Sánchez</MenuItem>
-                  <MenuItem value="Dr. Martínez">Dr. Martínez</MenuItem>
-                  <MenuItem value="Dra. López">Dra. López</MenuItem>
-                </TextField>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Fecha"
-                  name="fecha"
-                  type="date"
-                  value={formData.fecha}
-                  onChange={handleChange}
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                  required
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Hora"
-                  name="hora"
-                  type="time"
-                  value={formData.hora}
-                  onChange={handleChange}
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                  required
-                />
-              </Grid>
-            </Grid>
+            <TextField
+              select
+              fullWidth
+              label="Cliente"
+              name="cliente_id"
+              value={formData.cliente_id}
+              onChange={handleChange}
+              required
+              margin="normal"
+            >
+              {clientes.map((c) => (
+                <MenuItem key={c.cliente_id} value={c.cliente_id}>{c.nombre_apellido}</MenuItem>
+              ))}
+            </TextField>
+            <TextField
+              select
+              fullWidth
+              label="Abogado"
+              name="abogado_id"
+              value={formData.abogado_id}
+              onChange={handleChange}
+              required
+              margin="normal"
+            >
+              {abogados.map((a) => (
+                <MenuItem key={a.usuario_id} value={a.usuario_id}>{a.nombre_apellido}</MenuItem>
+              ))}
+            </TextField>
+            <TextField
+              select
+              fullWidth
+              label="Caso"
+              name="caso_id"
+              value={formData.caso_id}
+              onChange={handleChange}
+              margin="normal"
+            >
+              {casos.map((ca) => (
+                <MenuItem key={ca.caso_id} value={ca.caso_id}>{ca.tipo_caso}</MenuItem>
+              ))}
+            </TextField>
+            <TextField
+              fullWidth
+              label="Fecha y Hora"
+              name="fecha_hora"
+              type="datetime-local"
+              value={formData.fecha_hora}
+              onChange={handleChange}
+              required
+              margin="normal"
+              InputLabelProps={{ shrink: true }}
+            />
+            <TextField
+              fullWidth
+              label="Lugar"
+              name="lugar"
+              value={formData.lugar}
+              onChange={handleChange}
+              margin="normal"
+            />
+            <TextField
+              fullWidth
+              label="Motivo"
+              name="motivo"
+              value={formData.motivo}
+              onChange={handleChange}
+              required
+              margin="normal"
+            />
+            <TextField
+              select
+              fullWidth
+              label="Estado"
+              name="estado"
+              value={formData.estado}
+              onChange={handleChange}
+              required
+              margin="normal"
+            >
+              {estadoOptions.map(opt => (
+                <MenuItem key={opt} value={opt}>{opt}</MenuItem>
+              ))}
+            </TextField>
+            <TextField
+              fullWidth
+              label="Notas"
+              name="notas"
+              value={formData.notas}
+              onChange={handleChange}
+              margin="normal"
+              multiline
+              rows={2}
+            />
           </DialogContent>
           <DialogActions>
             <Button onClick={handleCloseDialog}>Cancelar</Button>
-            <Button type="submit" variant="contained">
-              {currentAppointment ? 'Actualizar' : 'Crear'}
-            </Button>
+            <Button type="submit" variant="contained">{currentCita ? 'Actualizar' : 'Crear'}</Button>
           </DialogActions>
         </form>
       </Dialog>
