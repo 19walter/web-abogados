@@ -61,16 +61,21 @@ const DashboardLayout = () => {
   let menuItems = [
     { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
   ];
-  if (user?.rol === 'asistente') {
+
+  if (user?.rol === 'admin') {
     menuItems.push(
-    { text: 'Casos', icon: <GavelIcon />, path: '/dashboard/casos' },
-    { text: 'Citas', icon: <EventIcon />, path: '/dashboard/citas' },
+      { text: 'Casos', icon: <GavelIcon />, path: '/dashboard/casos' },
+      { text: 'Citas', icon: <EventIcon />, path: '/dashboard/citas' },
       { text: 'Clientes', icon: <PersonIcon />, path: '/dashboard/clientes' },
       { text: 'Usuarios', icon: <SettingsIcon />, path: '/dashboard/usuarios' },
       { text: 'Especialidades', icon: <DescriptionIcon />, path: '/dashboard/especialidades' },
       { text: 'Gestión de Especialidades', icon: <GavelIcon />, path: '/dashboard/abogados-especialidades' },
-    { text: 'Documentos', icon: <DescriptionIcon />, path: '/dashboard/documentos' },
-      { text: 'Reportes de Citas', icon: <BarChartIcon />, path: '/dashboard/reportes-citas' }
+      { text: 'Documentos', icon: <DescriptionIcon />, path: '/dashboard/documentos' }
+    );
+  } else if (user?.rol === 'asistente') {
+    menuItems.push(
+      { text: 'Casos', icon: <GavelIcon />, path: '/dashboard/casos' },
+      { text: 'Citas', icon: <EventIcon />, path: '/dashboard/citas' }
     );
   } else if (user?.rol === 'abogado') {
     menuItems.push(

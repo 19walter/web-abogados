@@ -13,7 +13,6 @@ const appointmentsRoutes = require('./routes/appointments.routes');
 const clientesRoutes = require('./routes/clientes.routes');
 const usuariosRoutes = require('./routes/usuarios.routes');
 const especialidadesRoutes = require('./routes/especialidades.routes');
-const contactRoutes = require('./routes/contact.routes');
 
 const app = express();
 
@@ -34,7 +33,6 @@ app.use('/api/appointments', appointmentsRoutes);
 app.use('/api/clientes', clientesRoutes);
 app.use('/api/usuarios', usuariosRoutes);
 app.use('/api/especialidades', especialidadesRoutes);
-app.use('/api/contact', contactRoutes);
 
 // Middleware global de manejo de errores
 app.use((err, req, res, next) => {
