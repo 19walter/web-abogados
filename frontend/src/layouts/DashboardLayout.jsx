@@ -61,7 +61,7 @@ const DashboardLayout = () => {
   let menuItems = [
     { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
   ];
-  if (user?.rol === 'admin' || user?.rol === 'asistente') {
+  if (user?.rol === 'asistente') {
     menuItems.push(
     { text: 'Casos', icon: <GavelIcon />, path: '/dashboard/casos' },
     { text: 'Citas', icon: <EventIcon />, path: '/dashboard/citas' },
@@ -77,6 +77,10 @@ const DashboardLayout = () => {
       { text: 'Casos', icon: <GavelIcon />, path: '/dashboard/casos' },
       { text: 'Citas', icon: <EventIcon />, path: '/dashboard/citas' }
     );
+  } else if (user?.rol === 'admin'){
+    menuItems.push(
+        { text: 'Usuarios', icon: <SettingsIcon />, path: '/dashboard/usuarios' },
+    )
   }
 
   const drawer = (
