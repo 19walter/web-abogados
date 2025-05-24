@@ -19,6 +19,12 @@ import {
   TextField,
   MenuItem,
   Chip,
+  Grid,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemIcon,
+  ListItemSecondaryAction,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -26,8 +32,14 @@ import {
   Edit as EditIcon,
   Delete as DeleteIcon,
   Visibility as VisibilityIcon,
+  AttachFile as AttachFileIcon,
+  Delete as DeleteFileIcon,
 } from '@mui/icons-material';
-import { getAllCasos, createCaso, updateCaso, deleteCaso, getAllClientes, getAllAbogados } from '../services/records.service';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import { getAllCasos, createCaso, updateCaso, deleteCaso, getAllClientes, getAllAbogados, getAllEspecialidades } from '../services/records.service';
+import { uploadFile, deleteFile } from '../services/files.service';
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
 
 const Cases = () => {
   const [cases, setCases] = useState([]);
@@ -36,21 +48,22 @@ const Cases = () => {
   const [currentCase, setCurrentCase] = useState(null);
   const [formData, setFormData] = useState({
     cliente_id: '',
-    tipo_caso: '',
+    especialidad_id: '',
     estado: 'En proceso',
     fecha_inicio: new Date().toISOString().split('T')[0],
     abogado_id: '',
+    descripcion: '',
   });
   const [clientes, setClientes] = useState([]);
   const [abogados, setAbogados] = useState([]);
+  const [especialidades, setEspecialidades] = useState([]);
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [filteredAbogados, setFilteredAbogados] = useState([]);
+  const [dragActive, setDragActive] = useState(false);
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
   // Opciones válidas para los selects
-  const tipoCasoOptions = [
-    "Divorcio",
-    "Demanda laboral",
-    "Contrato comercial",
-    "Propiedad intelectual"
-  ];
   const estadoOptions = [
     "En proceso",
     "Activo",
@@ -62,7 +75,24 @@ const Cases = () => {
     fetchCases();
     fetchClientes();
     fetchAbogados();
+    fetchEspecialidades();
   }, []);
+
+  useEffect(() => {
+    console.log('Abogados:', abogados);
+    if (formData.especialidad_id) {
+      const abogadosFiltrados = abogados.filter(abogado =>
+        abogado.especialidads?.some(esp => esp.id === parseInt(formData.especialidad_id))
+      );
+      setFilteredAbogados(abogadosFiltrados);
+      if (!abogadosFiltrados.some(a => a.usuario_id === formData.abogado_id)) {
+        setFormData(prev => ({ ...prev, abogado_id: "" }));
+      }
+    } else {
+      setFilteredAbogados([]);
+      setFormData(prev => ({ ...prev, abogado_id: "" }));
+    }
+  }, [formData.especialidad_id, abogados]);
 
   const fetchCases = async () => {
     try {
@@ -96,24 +126,36 @@ const Cases = () => {
     }
   };
 
+  const fetchEspecialidades = async () => {
+    try {
+      const response = await getAllEspecialidades();
+      setEspecialidades(response.data || []);
+    } catch (error) {
+      console.error('Error al cargar especialidades:', error);
+      setEspecialidades([]);
+    }
+  };
+
   const handleOpenDialog = (caseData = null) => {
     if (caseData) {
       setCurrentCase(caseData);
       setFormData({
-        cliente_id: caseData.cliente_id || '',
-        tipo_caso: caseData.tipo_caso || '',
+        cliente_id: caseData.cliente_id ? String(caseData.cliente_id) : '',
+        especialidad_id: caseData.especialidad_id ? String(caseData.especialidad_id) : '',
         estado: caseData.estado || 'En proceso',
         fecha_inicio: caseData.fecha_inicio ? caseData.fecha_inicio.split('T')[0] : new Date().toISOString().split('T')[0],
-        abogado_id: caseData.abogado_id || '',
+        abogado_id: caseData.abogado_id ? String(caseData.abogado_id) : '',
+        descripcion: caseData.descripcion || '',
       });
     } else {
       setCurrentCase(null);
       setFormData({
         cliente_id: '',
-        tipo_caso: '',
+        especialidad_id: '',
         estado: 'En proceso',
         fecha_inicio: new Date().toISOString().split('T')[0],
         abogado_id: '',
+        descripcion: '',
       });
     }
     setOpenDialog(true);
@@ -132,17 +174,66 @@ const Cases = () => {
     }));
   };
 
+  const handleFileSelect = (event) => {
+    const files = Array.from(event.target.files);
+    setSelectedFiles(prev => [...prev, ...files]);
+  };
+
+  const handleRemoveFile = (index) => {
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleRemoveUploadedFile = async (fileId) => {
+    try {
+      await deleteFile(fileId);
+      setUploadedFiles(prev => prev.filter(f => f.id !== fileId));
+    } catch (error) {
+      console.error('Error al eliminar archivo:', error);
+    }
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      setSelectedFiles(prev => [...prev, ...Array.from(e.dataTransfer.files)]);
+    }
+  };
+
+  const handleSnackbarClose = () => setSnackbar({ ...snackbar, open: false });
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      let casoId;
       if (currentCase) {
         await updateCaso(currentCase.caso_id, formData);
+        casoId = currentCase.caso_id;
       } else {
-        await createCaso(formData);
+        const { data } = await createCaso(formData);
+        casoId = data.caso_id;
       }
+      // Subir archivos
+      const uploadPromises = selectedFiles.map(file => uploadFile(file, casoId));
+      await Promise.all(uploadPromises);
       fetchCases();
       handleCloseDialog();
+      setSnackbar({ open: true, message: 'Caso y archivos guardados correctamente', severity: 'success' });
     } catch (error) {
+      setSnackbar({ open: true, message: 'Error al guardar el caso o archivos', severity: 'error' });
       console.error('Error al guardar caso:', error);
     }
   };
@@ -173,14 +264,6 @@ const Cases = () => {
         return 'default';
     }
   };
-
-  // Al preparar los valores para el formulario:
-  const tipoCasoValue = tipoCasoOptions.includes(formData.tipo_caso)
-    ? formData.tipo_caso
-    : "";
-  const estadoValue = estadoOptions.includes(formData.estado)
-    ? formData.estado
-    : "";
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
@@ -251,93 +334,162 @@ const Cases = () => {
         </Table>
       </TableContainer>
 
-      <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
-        <DialogTitle>
-          {currentCase ? 'Editar Caso' : 'Nuevo Caso'}
-        </DialogTitle>
+      <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="md" fullWidth>
+        <DialogTitle>{currentCase ? 'Editar Caso' : 'Nuevo Caso'}</DialogTitle>
         <form onSubmit={handleSubmit}>
           <DialogContent>
-            <TextField
-              select
-              fullWidth
-              label="Nombre del Cliente"
-              name="cliente_id"
-              value={formData.cliente_id}
-              onChange={handleChange}
-              required
-              margin="normal"
-            >
-              {clientes.map((cliente) => (
-                <MenuItem key={cliente.cliente_id} value={cliente.cliente_id}>
-                  {cliente.nombre_apellido}
-                </MenuItem>
-              ))}
-            </TextField>
-            <TextField
-              select
-              fullWidth
-              label="Tipo de Caso"
-              name="tipo_caso"
-              value={tipoCasoValue}
-              onChange={handleChange}
-              required
-              margin="normal"
-            >
-              {tipoCasoOptions.map(option => (
-                <MenuItem key={option} value={option}>{option}</MenuItem>
-              ))}
-            </TextField>
-            <TextField
-              select
-              fullWidth
-              label="Estado"
-              name="estado"
-              value={estadoValue}
-              onChange={handleChange}
-              required
-              margin="normal"
-            >
-              {estadoOptions.map(option => (
-                <MenuItem key={option} value={option}>{option}</MenuItem>
-              ))}
-            </TextField>
-            <TextField
-              fullWidth
-              label="Fecha de Inicio"
-              name="fecha_inicio"
-              type="date"
-              value={formData.fecha_inicio}
-              onChange={handleChange}
-              required
-              margin="normal"
-              InputLabelProps={{
-                shrink: true,
-              }}
-            />
-            <TextField
-              select
-              fullWidth
-              label="Asignado a"
-              name="abogado_id"
-              value={formData.abogado_id}
-              onChange={handleChange}
-              required
-              margin="normal"
-            >
-              {abogados.map((abogado) => (
-                <MenuItem key={abogado.usuario_id} value={abogado.usuario_id}>
-                  {abogado.nombre_apellido}
-                </MenuItem>
-              ))}
-            </TextField>
+            <Grid container spacing={3}>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  select
+                  fullWidth
+                  label="Cliente"
+                  name="cliente_id"
+                  value={formData.cliente_id || ""}
+                  onChange={handleChange}
+                  required
+                  margin="normal"
+                >
+                  {clientes.map((cliente) => (
+                    <MenuItem key={cliente.cliente_id} value={String(cliente.cliente_id)}>
+                      {cliente.nombre_apellido}
+                    </MenuItem>
+                  ))}
+                </TextField>
+                <TextField
+                  select
+                  fullWidth
+                  label="Especialidad"
+                  name="especialidad_id"
+                  value={formData.especialidad_id || ""}
+                  onChange={handleChange}
+                  required
+                  margin="normal"
+                >
+                  {especialidades.map((esp) => (
+                    <MenuItem key={esp.especialidad_id} value={String(esp.especialidad_id)}>
+                      {esp.nombre}
+                    </MenuItem>
+                  ))}
+                </TextField>
+                <TextField
+                  select
+                  fullWidth
+                  label="Abogado"
+                  name="abogado_id"
+                  value={formData.abogado_id || ""}
+                  onChange={handleChange}
+                  required
+                  margin="normal"
+                  disabled={!formData.especialidad_id}
+                >
+                  {filteredAbogados.map((abogado) => (
+                    <MenuItem key={abogado.usuario_id} value={String(abogado.usuario_id)}>
+                      {abogado.nombre_apellido}
+                    </MenuItem>
+                  ))}
+                </TextField>
+                <TextField
+                  select
+                  fullWidth
+                  label="Estado"
+                  name="estado"
+                  value={formData.estado || ""}
+                  onChange={handleChange}
+                  required
+                  margin="normal"
+                >
+                  {estadoOptions.map((estado) => (
+                    <MenuItem key={estado} value={estado}>
+                      {estado}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  label="Descripción"
+                  name="descripcion"
+                  value={formData.descripcion}
+                  onChange={handleChange}
+                  multiline
+                  rows={5}
+                  margin="normal"
+                />
+                <Box
+                  sx={{
+                    mt: 2,
+                    p: 2,
+                    border: '2px dashed',
+                    borderColor: dragActive ? 'primary.main' : 'grey.400',
+                    borderRadius: 2,
+                    backgroundColor: dragActive ? 'primary.lighter' : 'background.paper',
+                    textAlign: 'center',
+                    transition: 'border-color 0.2s, background-color 0.2s',
+                    cursor: 'pointer',
+                    position: 'relative',
+                  }}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                  onClick={() => document.getElementById('file-upload').click()}
+                >
+                  <CloudUploadIcon color={dragActive ? 'primary' : 'action'} sx={{ fontSize: 40, mb: 1 }} />
+                  <Typography variant="body1" color="textSecondary">
+                    Arrastra y suelta archivos aquí o haz clic para seleccionar
+                  </Typography>
+                  <input
+                    type="file"
+                    multiple
+                    onChange={handleFileSelect}
+                    style={{ display: 'none' }}
+                    id="file-upload"
+                  />
+                </Box>
+                <List>
+                  {selectedFiles.map((file, index) => (
+                    <ListItem key={index} sx={{ borderBottom: '1px solid #eee' }}>
+                      <ListItemIcon>
+                        <AttachFileIcon />
+                      </ListItemIcon>
+                      <ListItemText primary={file.name} secondary={`${(file.size / 1024).toFixed(1)} KB`} />
+                      <ListItemSecondaryAction>
+                        <IconButton edge="end" onClick={() => handleRemoveFile(index)}>
+                          <DeleteFileIcon />
+                        </IconButton>
+                      </ListItemSecondaryAction>
+                    </ListItem>
+                  ))}
+                  {uploadedFiles.map((file) => (
+                    <ListItem key={file.id} sx={{ borderBottom: '1px solid #eee' }}>
+                      <ListItemIcon>
+                        <AttachFileIcon />
+                      </ListItemIcon>
+                      <ListItemText primary={file.nombre} />
+                      <ListItemSecondaryAction>
+                        <IconButton edge="end" onClick={() => handleRemoveUploadedFile(file.id)}>
+                          <DeleteFileIcon />
+                        </IconButton>
+                      </ListItemSecondaryAction>
+                    </ListItem>
+                  ))}
+                </List>
+              </Grid>
+            </Grid>
           </DialogContent>
-          <DialogActions>
+          <DialogActions sx={{ px: 3, pb: 2 }}>
             <Button onClick={handleCloseDialog}>Cancelar</Button>
             <Button type="submit" variant="contained">
               {currentCase ? 'Actualizar' : 'Crear'}
             </Button>
           </DialogActions>
         </form>
+        <Snackbar open={snackbar.open} autoHideDuration={4000} onClose={handleSnackbarClose} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
+          <MuiAlert elevation={6} variant="filled" onClose={handleSnackbarClose} severity={snackbar.severity} sx={{ width: '100%' }}>
+            {snackbar.message}
+          </MuiAlert>
+        </Snackbar>
       </Dialog>
     </Container>
   );

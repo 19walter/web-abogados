@@ -8,6 +8,7 @@ const Respuesta = require('./respuestas.model');
 const Comunicacion = require('./comunicacion.model');
 const Cita = require('./citas.model');
 const Especialidad = require('./especialidades.model');
+const Archivo = require('./archivos.model');
 
 // Definir la tabla intermedia para la relación N:M
 const AbogadoEspecialidad = sequelize.define('AbogadoEspecialidad', {}, { 
@@ -66,6 +67,10 @@ Cita.belongsTo(Caso, { foreignKey: 'caso_id' });
 Usuario.belongsToMany(Especialidad, { through: AbogadoEspecialidad, foreignKey: 'abogado_id', otherKey: 'especialidad_id', as: 'especialidads' });
 Especialidad.belongsToMany(Usuario, { through: AbogadoEspecialidad, foreignKey: 'especialidad_id', otherKey: 'abogado_id' });
 
+// Caso - Archivo (1:N)
+Caso.hasMany(Archivo, { foreignKey: 'caso_id' });
+Archivo.belongsTo(Caso, { foreignKey: 'caso_id' });
+
 module.exports = {
   Usuario,
   DetallesAbogados,
@@ -76,5 +81,6 @@ module.exports = {
   Comunicacion,
   Cita,
   Especialidad,
-  AbogadoEspecialidad
+  AbogadoEspecialidad,
+  Archivo
 }; 
