@@ -82,6 +82,10 @@ const DashboardLayout = () => {
       { text: 'Casos', icon: <GavelIcon />, path: '/dashboard/casos' },
       { text: 'Citas', icon: <EventIcon />, path: '/dashboard/citas' }
     );
+  } else if (user?.rol === 'admin'){
+    menuItems.push(
+        { text: 'Usuarios', icon: <SettingsIcon />, path: '/dashboard/usuarios' },
+    )
   }
 
   const drawer = (
